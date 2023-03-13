@@ -1,0 +1,12 @@
+node
+node_modules
+vendor
+bin/
+
+# local env files
+.env.local
+
+# Editor directories and files
+.DS_Store
+.idea
+.vscode
