@@ -16,6 +16,7 @@ import (
 	"github.com/anaxaim/tui/pkg/common"
 	"github.com/anaxaim/tui/pkg/config"
 	"github.com/anaxaim/tui/pkg/database"
+	"github.com/anaxaim/tui/pkg/middleware"
 	"github.com/anaxaim/tui/pkg/repository"
 	"github.com/anaxaim/tui/pkg/utils"
 	"github.com/anaxaim/tui/pkg/version"
@@ -32,7 +33,11 @@ func New(conf *config.Config, logger *logrus.Logger) (*Server, error) {
 	gin.SetMode(conf.Server.ENV)
 
 	e := gin.New()
-	e.Use(gin.Recovery())
+	e.Use(
+		gin.Recovery(),
+		middleware.CORSMiddleware(),
+		middleware.LogMiddleware(logger, "/"),
+	)
 
 	return &Server{
 		engine:     e,

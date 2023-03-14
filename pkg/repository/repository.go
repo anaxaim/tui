@@ -8,14 +8,16 @@ import (
 
 func NewRepository(db *database.MongoDB) Repository {
 	r := &repository{
-		db: db,
+		db:   db,
+		user: newUserRepository(db),
 	}
 
 	return r
 }
 
 type repository struct {
-	db *database.MongoDB
+	db   *database.MongoDB
+	user UserRepository
 }
 
 func (r *repository) Close() error {

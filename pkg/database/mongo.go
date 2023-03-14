@@ -15,6 +15,7 @@ import (
 
 type MongoDB struct {
 	*mongo.Client
+	DBName string
 }
 
 func NewMongoClient(conf *config.DBConfig) (*MongoDB, error) {
@@ -29,7 +30,7 @@ func NewMongoClient(conf *config.DBConfig) (*MongoDB, error) {
 		return &MongoDB{}, err
 	}
 
-	return &MongoDB{Client: client}, nil
+	return &MongoDB{Client: client, DBName: conf.Database}, nil
 }
 
 func CreateDBUser(migrations string, uri string) error {

@@ -37,6 +37,6 @@ docker-build-server: ## build server image
 docker-run-server: ## run server in docker
 	docker run --network host -v $(shell pwd)/config:/config -v /var/run/docker.sock:/var/run/docker.sock $(SERVER_IMG)
 
-mongo: ## init mongo db
+mongo: ## init mongo  db
 	@docker start mymongo || docker run --name mymongo -d -p 27017:27017 mongo:6.0.4
 
