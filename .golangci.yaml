@@ -28,6 +28,7 @@ linters:
     - godox            # Tool for detection of FIXME, TODO and other comment keywords
     - wsl              # Whitespace Linter - Forces you to use empty lines!
     - forcetypeassert  # finds forced type assertions
+    - ireturn          # Accept Interfaces, Return Concrete Types
     - wrapcheck        # unskip it later
     # complexity: need to refactor
     - cyclop

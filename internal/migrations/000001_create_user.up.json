@@ -1,0 +1,16 @@
+[
+    {
+        "createUser": "tui",
+        "pwd": "tui312",
+        "roles": [
+            {
+                "role": "readWrite",
+                "db": "tui"
+            },
+            {
+                "role": "readWrite",
+                "db": "admin"
+            }
+        ]
+    }
+]

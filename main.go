@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 
+	_ "github.com/golang-migrate/migrate/v4/database/mongodb"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/sirupsen/logrus"
 
 	"github.com/anaxaim/tui/pkg/config"

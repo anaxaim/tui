@@ -8,6 +8,7 @@ import (
 
 type Config struct {
 	Server ServerConfig `yaml:"server"`
+	DB     DBConfig     `yaml:"db"`
 }
 
 type ServerConfig struct {
@@ -15,6 +16,15 @@ type ServerConfig struct {
 	Address                string `yaml:"address"`
 	Port                   int    `yaml:"port"`
 	GracefulShutdownPeriod int    `yaml:"gracefulShutdownPeriod"`
+}
+
+type DBConfig struct {
+	Host           string `yaml:"host"`
+	Port           string `yaml:"port"`
+	Database       string `yaml:"database"`
+	User           string `yaml:"user"`
+	Password       string `yaml:"password"`
+	MigrationsPath string `yaml:"migrationsPath"`
 }
 
 func Parse(appConfig string) (*Config, error) {
