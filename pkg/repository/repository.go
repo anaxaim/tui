@@ -20,6 +20,10 @@ type repository struct {
 	user UserRepository
 }
 
+func (r *repository) User() UserRepository {
+	return r.user
+}
+
 func (r *repository) Close() error {
 	if r.db.Client != nil {
 		if err := r.db.Disconnect(context.Background()); err != nil {

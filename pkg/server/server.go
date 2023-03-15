@@ -15,9 +15,11 @@ import (
 
 	"github.com/anaxaim/tui/pkg/common"
 	"github.com/anaxaim/tui/pkg/config"
+	"github.com/anaxaim/tui/pkg/controller"
 	"github.com/anaxaim/tui/pkg/database"
 	"github.com/anaxaim/tui/pkg/middleware"
 	"github.com/anaxaim/tui/pkg/repository"
+	"github.com/anaxaim/tui/pkg/service"
 	"github.com/anaxaim/tui/pkg/utils"
 	"github.com/anaxaim/tui/pkg/version"
 )
@@ -30,6 +32,12 @@ func New(conf *config.Config, logger *logrus.Logger) (*Server, error) {
 
 	repo := repository.NewRepository(db)
 
+	userService := service.NewUserService(repo.User())
+
+	userController := controller.NewUserController(userService)
+
+	controllers := []controller.Controller{userController}
+
 	gin.SetMode(conf.Server.ENV)
 
 	e := gin.New()
@@ -40,10 +48,11 @@ func New(conf *config.Config, logger *logrus.Logger) (*Server, error) {
 	)
 
 	return &Server{
-		engine:     e,
-		config:     conf,
-		logger:     logger,
-		repository: repo,
+		engine:      e,
+		config:      conf,
+		logger:      logger,
+		repository:  repo,
+		controllers: controllers,
 	}, nil
 }
 
@@ -53,6 +62,8 @@ type Server struct {
 	logger *logrus.Logger
 
 	repository repository.Repository
+
+	controllers []controller.Controller
 }
 
 func (s *Server) Run() error {
@@ -96,9 +107,18 @@ func (s *Server) Close() {
 func (s *Server) initRouter() {
 	root := s.engine
 
+	// register non-resource routers
 	root.GET("/", common.WrapFunc(s.getRoutes))
-	root.GET("/version", common.WrapFunc(version.Get))
 	root.GET("/healthz", common.WrapFunc(s.Ping))
+	root.GET("/version", common.WrapFunc(version.Get))
+
+	api := root.Group("/api/v1")
+	controllers := make([]string, 0, len(s.controllers))
+	for _, router := range s.controllers {
+		router.RegisterRoute(api)
+		controllers = append(controllers, router.Name())
+	}
+	logrus.Infof("server enabled controllers: %v", controllers)
 }
 
 func (s *Server) getRoutes() []string {

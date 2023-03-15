@@ -7,7 +7,7 @@ import (
 type User struct {
 	ID       primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
 	Username string             `json:"username" bson:"username"`
-	Password string             `json:"-" bson:"password"`
+	Password string             `json:"password" bson:"password"`
 
 	BaseModel
 }

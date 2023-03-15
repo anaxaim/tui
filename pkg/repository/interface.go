@@ -7,6 +7,7 @@ import (
 )
 
 type Repository interface {
+	User() UserRepository
 	Close() error
 	Ping(ctx context.Context) error
 }

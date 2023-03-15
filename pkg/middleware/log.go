@@ -11,9 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var (
-	hostname, _ = os.Hostname()
-)
+var hostname, _ = os.Hostname()
 
 func LogMiddleware(logger *logrus.Logger, pathPrefix ...string) gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -50,7 +48,7 @@ func LogMiddleware(logger *logrus.Logger, pathPrefix ...string) gin.HandlerFunc 
 				entry.Error(c.Errors.ByType(gin.ErrorTypePrivate).String())
 			} else {
 				msg := fmt.Sprintf("[%s %s] %d %v", c.Request.Method, c.Request.URL, statusCode, latency)
-				if statusCode >= http.StatusInternalServerError {
+				if statusCode >= http.StatusInternalServerError { //nolint: gocritic
 					entry.Error(msg)
 				} else if statusCode >= http.StatusBadRequest {
 					entry.Warn(msg)

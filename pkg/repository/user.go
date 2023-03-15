@@ -89,10 +89,10 @@ func (r *userRepository) Update(user *model.User) (*model.User, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal user bytes. error: %w", err)
 	}
-	delete(updateUserObj, "username")
+	delete(updateUserObj, "_id")
 
-	filter := bson.M{"username": user.Username}
-	update := bson.M{"$set": bson.M{}}
+	filter := bson.M{"_id": user.ID}
+	update := bson.M{"$set": updateUserObj}
 
 	result, err := r.collection.UpdateOne(context.Background(), filter, update)
 	if err != nil {
