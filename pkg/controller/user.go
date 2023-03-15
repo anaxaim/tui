@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -53,18 +54,23 @@ func (u *UserController) Create(c *gin.Context) {
 
 	user, err := u.userService.Create(user)
 	if err != nil {
+		if errors.Is(err, service.ErrUserAlreadyExists) {
+			common.ResponseFailed(c, http.StatusConflict, err)
+			return
+		}
 		common.ResponseFailed(c, http.StatusInternalServerError, err)
+		return
 	}
 
 	common.ResponseSuccess(c, user)
 }
 
 func (u *UserController) Update(c *gin.Context) {
-	user := common.GetUser(c)
-	if user == nil {
-		common.ResponseFailed(c, http.StatusForbidden, nil)
-		return
-	}
+	// user := common.GetUser(c)
+	// if user == nil {
+	// 	common.ResponseFailed(c, http.StatusForbidden, nil)
+	// 	return
+	// }
 
 	newUser := new(model.User)
 	if err := c.BindJSON(newUser); err != nil {
@@ -83,11 +89,11 @@ func (u *UserController) Update(c *gin.Context) {
 }
 
 func (u *UserController) Delete(c *gin.Context) {
-	user := common.GetUser(c)
-	if user == nil {
-		common.ResponseFailed(c, http.StatusForbidden, nil)
-		return
-	}
+	// user := common.GetUser(c)
+	// if user == nil {
+	// 	common.ResponseFailed(c, http.StatusForbidden, nil)
+	// 	return
+	// }
 
 	if err := u.userService.Delete(c.Param("username")); err != nil {
 		common.ResponseFailed(c, http.StatusBadRequest, err)

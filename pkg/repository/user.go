@@ -6,11 +6,14 @@ import (
 	"fmt"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/anaxaim/tui/pkg/database"
 	"github.com/anaxaim/tui/pkg/model"
 )
+
+var ErrConvertToHex = errors.New("failed to convert objectid to hex")
 
 type userRepository struct {
 	collection *mongo.Collection
@@ -71,30 +74,29 @@ func (r *userRepository) Delete(user *model.User) error {
 }
 
 func (r *userRepository) Create(user *model.User) (*model.User, error) {
-	if _, err := r.collection.InsertOne(context.Background(), user); err != nil {
+	result, err := r.collection.InsertOne(context.Background(), user)
+	if err != nil {
 		return nil, err
 	}
 
-	return user, nil
+	oid, ok := result.InsertedID.(primitive.ObjectID)
+	if ok {
+		user.ID = oid
+		return user, nil
+	}
+
+	return nil, ErrConvertToHex
 }
 
 func (r *userRepository) Update(user *model.User) (*model.User, error) {
-	userBytes, err := bson.Marshal(user)
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal user. error: %w", err)
+	update := bson.M{
+		"$set": bson.M{
+			"username": user.Username,
+			"password": user.Password,
+		},
 	}
 
-	var updateUserObj bson.M
-	err = bson.Unmarshal(userBytes, &updateUserObj)
-	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshal user bytes. error: %w", err)
-	}
-	delete(updateUserObj, "_id")
-
-	filter := bson.M{"_id": user.ID}
-	update := bson.M{"$set": updateUserObj}
-
-	result, err := r.collection.UpdateOne(context.Background(), filter, update)
+	result, err := r.collection.UpdateByID(context.Background(), user.ID, update)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return user, mongo.ErrNoDocuments
@@ -107,6 +109,14 @@ func (r *userRepository) Update(user *model.User) (*model.User, error) {
 	}
 
 	return user, nil
+}
+
+func (r *userRepository) Exists(username string) (bool, error) {
+	count, err := r.collection.CountDocuments(context.Background(), bson.M{"username": username})
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
 }
 
 func (r *userRepository) Migrate() error {

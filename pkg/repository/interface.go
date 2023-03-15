@@ -18,5 +18,6 @@ type UserRepository interface {
 	Delete(*model.User) error
 	Create(*model.User) (*model.User, error)
 	Update(*model.User) (*model.User, error)
+	Exists(string) (bool, error)
 	Migrate() error
 }

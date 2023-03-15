@@ -1,9 +1,9 @@
 package service
 
 import (
-	"errors"
 	"fmt"
 
+	"github.com/pkg/errors"
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/anaxaim/tui/pkg/model"
@@ -13,6 +13,8 @@ import (
 const (
 	MinPasswordLength = 6
 )
+
+var ErrUserAlreadyExists = errors.New("user has already exist")
 
 type userService struct {
 	userRepository repository.UserRepository
@@ -29,6 +31,14 @@ func (u *userService) List() (model.Users, error) {
 }
 
 func (u *userService) Create(user *model.User) (*model.User, error) {
+	exists, err := u.userRepository.Exists(user.Username)
+	if err != nil {
+		return nil, err
+	}
+	if exists {
+		return nil, errors.Wrap(ErrUserAlreadyExists, fmt.Sprintf("username '%s'", user.Username))
+	}
+
 	password, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, err
@@ -48,10 +58,8 @@ func (u *userService) Update(username string, newUser *model.User) (*model.User,
 		return nil, err
 	}
 
-	if old.Username != newUser.Username {
-		return nil, fmt.Errorf("update user %s not match", username)
-	}
 	newUser.Username = old.Username
+	newUser.ID = old.ID
 
 	if len(newUser.Password) > 0 {
 		password, err := bcrypt.GenerateFromPassword([]byte(newUser.Password), bcrypt.DefaultCost)
