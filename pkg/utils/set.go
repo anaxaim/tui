@@ -22,6 +22,12 @@ func (s String) Insert(items ...string) String {
 	return s
 }
 
+// Has returns true if and only if item is contained in the set.
+func (s String) Has(item string) bool {
+	_, contained := s[item]
+	return contained
+}
+
 func (s String) Slice() []string {
 	slice := make([]string, 0, len(s))
 	for item := range s {

@@ -12,12 +12,16 @@ type Repository interface {
 	Ping(ctx context.Context) error
 }
 
-type UserRepository interface {
-	GetUserByUsername(string) (*model.User, error)
+type UserRepository interface { //nolint: interfacebloat
+	GetUserByID(string) (*model.User, error)
+	GetUserByAuthID(authType, authID string) (*model.User, error)
+	GetUserByName(string) (*model.User, error)
 	List() (model.Users, error)
-	Delete(*model.User) error
 	Create(*model.User) (*model.User, error)
 	Update(*model.User) (*model.User, error)
+	Delete(*model.User) error
+	AddAuthInfo(authInfo *model.AuthInfo) error
+	DelAuthInfo(authInfo *model.AuthInfo) error
 	Exists(string) (bool, error)
 	Migrate() error
 }

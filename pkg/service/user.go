@@ -31,12 +31,12 @@ func (u *userService) List() (model.Users, error) {
 }
 
 func (u *userService) Create(user *model.User) (*model.User, error) {
-	exists, err := u.userRepository.Exists(user.Username)
+	exists, err := u.userRepository.Exists(user.Name)
 	if err != nil {
 		return nil, err
 	}
 	if exists {
-		return nil, errors.Wrap(ErrUserAlreadyExists, fmt.Sprintf("username '%s'", user.Username))
+		return nil, errors.Wrap(ErrUserAlreadyExists, fmt.Sprintf("name '%s'", user.Name))
 	}
 
 	password, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
@@ -48,17 +48,17 @@ func (u *userService) Create(user *model.User) (*model.User, error) {
 	return u.userRepository.Create(user)
 }
 
-func (u *userService) Get(username string) (*model.User, error) {
-	return u.getUserByUsername(username)
+func (u *userService) Get(name string) (*model.User, error) {
+	return u.getUserByName(name)
 }
 
-func (u *userService) Update(username string, newUser *model.User) (*model.User, error) {
-	old, err := u.getUserByUsername(username)
+func (u *userService) Update(name string, newUser *model.User) (*model.User, error) {
+	old, err := u.getUserByName(name)
 	if err != nil {
 		return nil, err
 	}
 
-	newUser.Username = old.Username
+	newUser.Name = old.Name
 	newUser.ID = old.ID
 
 	if len(newUser.Password) > 0 {
@@ -72,8 +72,8 @@ func (u *userService) Update(username string, newUser *model.User) (*model.User,
 	return u.userRepository.Update(newUser)
 }
 
-func (u *userService) Delete(username string) error {
-	user, err := u.getUserByUsername(username)
+func (u *userService) Delete(name string) error {
+	user, err := u.getUserByName(name)
 	if err != nil {
 		return err
 	}
@@ -85,7 +85,7 @@ func (u *userService) Validate(user *model.User) error {
 	if user == nil {
 		return errors.New("user is empty")
 	}
-	if user.Username == "" {
+	if user.Name == "" {
 		return errors.New("user name is empty")
 	}
 	if len(user.Password) < MinPasswordLength {
@@ -94,6 +94,25 @@ func (u *userService) Validate(user *model.User) error {
 	return nil
 }
 
-func (u *userService) getUserByUsername(username string) (*model.User, error) {
-	return u.userRepository.GetUserByUsername(username)
+func (u *userService) Auth(auser *model.AuthUser) (*model.User, error) {
+	if auser == nil || auser.Name == "" || auser.Password == "" {
+		return nil, fmt.Errorf("name or password is empty")
+	}
+
+	user, err := u.userRepository.GetUserByName(auser.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(auser.Password)); err != nil {
+		return nil, err
+	}
+
+	user.Password = ""
+
+	return user, nil
+}
+
+func (u *userService) getUserByName(name string) (*model.User, error) {
+	return u.userRepository.GetUserByName(name)
 }

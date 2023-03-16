@@ -32,7 +32,7 @@ func (u *UserController) List(c *gin.Context) {
 }
 
 func (u *UserController) Get(c *gin.Context) {
-	user, err := u.userService.Get(c.Param("username"))
+	user, err := u.userService.Get(c.Param("name"))
 	if err != nil {
 		common.ResponseFailed(c, http.StatusBadRequest, err)
 		return
@@ -79,7 +79,7 @@ func (u *UserController) Update(c *gin.Context) {
 	}
 	logrus.Infof("get update user: %#v", newUser)
 
-	user, err := u.userService.Update(c.Param("username"), newUser)
+	user, err := u.userService.Update(c.Param("name"), newUser)
 	if err != nil {
 		common.ResponseFailed(c, http.StatusInternalServerError, err)
 		return
@@ -95,7 +95,7 @@ func (u *UserController) Delete(c *gin.Context) {
 	// 	return
 	// }
 
-	if err := u.userService.Delete(c.Param("username")); err != nil {
+	if err := u.userService.Delete(c.Param("name")); err != nil {
 		common.ResponseFailed(c, http.StatusBadRequest, err)
 		return
 	}
@@ -106,9 +106,9 @@ func (u *UserController) Delete(c *gin.Context) {
 func (u *UserController) RegisterRoute(api *gin.RouterGroup) {
 	api.GET("/users", u.List)
 	api.POST("/users", u.Create)
-	api.GET("/users/:username", u.Get)
-	api.PUT("/users/:username", u.Update)
-	api.DELETE("/users/:username", u.Delete)
+	api.GET("/users/:name", u.Get)
+	api.PUT("/users/:name", u.Update)
+	api.DELETE("/users/:name", u.Delete)
 }
 
 func (u *UserController) Name() string {

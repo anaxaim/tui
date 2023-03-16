@@ -1,5 +1,8 @@
 package common
 
 const (
-	UserContextKey = `user`
+	UserContextKey        = `user`
+	RequestInfoContextKey = `requestInfo`
+	CookieTokenName       = `token`
+	CookieLoginUser       = `loginUser`
 )

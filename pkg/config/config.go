@@ -16,6 +16,7 @@ type ServerConfig struct {
 	Address                string `yaml:"address"`
 	Port                   int    `yaml:"port"`
 	GracefulShutdownPeriod int    `yaml:"gracefulShutdownPeriod"`
+	JWTSecret              string `yaml:"jwtSecret"`
 }
 
 type DBConfig struct {

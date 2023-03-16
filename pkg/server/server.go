@@ -13,6 +13,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
+	"github.com/anaxaim/tui/pkg/authentication"
 	"github.com/anaxaim/tui/pkg/common"
 	"github.com/anaxaim/tui/pkg/config"
 	"github.com/anaxaim/tui/pkg/controller"
@@ -33,10 +34,12 @@ func New(conf *config.Config, logger *logrus.Logger) (*Server, error) {
 	repo := repository.NewRepository(db)
 
 	userService := service.NewUserService(repo.User())
+	jwtService := authentication.NewJWTService(conf.Server.JWTSecret)
 
 	userController := controller.NewUserController(userService)
+	authController := controller.NewAuthController(userService, jwtService)
 
-	controllers := []controller.Controller{userController}
+	controllers := []controller.Controller{userController, authController}
 
 	gin.SetMode(conf.Server.ENV)
 
@@ -45,6 +48,14 @@ func New(conf *config.Config, logger *logrus.Logger) (*Server, error) {
 		gin.Recovery(),
 		middleware.CORSMiddleware(),
 		middleware.LogMiddleware(logger, "/"),
+	)
+
+	e.Use(
+		gin.Recovery(),
+		middleware.CORSMiddleware(),
+		middleware.RequestInfoMiddleware(&utils.RequestInfoFactory{APIPrefixes: utils.NewString("api")}),
+		middleware.LogMiddleware(logger, "/"),
+		middleware.AuthenticationMiddleware(jwtService, repo.User()),
 	)
 
 	return &Server{
