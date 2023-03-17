@@ -7,8 +7,8 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/sirupsen/logrus"
 
-	"github.com/anaxaim/tui/pkg/config"
-	"github.com/anaxaim/tui/pkg/server"
+	"github.com/anaxaim/tui/server/pkg/config"
+	"github.com/anaxaim/tui/server/pkg/server"
 )
 
 var ( //nolint: gofumpt

@@ -7,7 +7,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
-	"github.com/anaxaim/tui/pkg/model"
+	"github.com/anaxaim/tui/server/pkg/model"
 )
 
 const (

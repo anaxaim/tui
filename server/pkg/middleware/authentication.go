@@ -7,9 +7,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/anaxaim/tui/pkg/authentication"
-	"github.com/anaxaim/tui/pkg/common"
-	"github.com/anaxaim/tui/pkg/repository"
+	"github.com/anaxaim/tui/server/pkg/authentication"
+	"github.com/anaxaim/tui/server/pkg/common"
+	"github.com/anaxaim/tui/server/pkg/repository"
 )
 
 func AuthenticationMiddleware(jwtService *authentication.JWTService, userRepo repository.UserRepository) gin.HandlerFunc {

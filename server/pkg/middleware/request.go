@@ -5,8 +5,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/anaxaim/tui/pkg/common"
-	"github.com/anaxaim/tui/pkg/utils"
+	"github.com/anaxaim/tui/server/pkg/common"
+	"github.com/anaxaim/tui/server/pkg/utils"
 )
 
 func RequestInfoMiddleware(resolver utils.RequestInfoResolver) gin.HandlerFunc {

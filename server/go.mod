@@ -1,4 +1,4 @@
-module github.com/anaxaim/tui
+module github.com/anaxaim/tui/server
 
 go 1.20
 

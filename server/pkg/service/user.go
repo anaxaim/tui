@@ -6,8 +6,8 @@ import (
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/anaxaim/tui/pkg/model"
-	"github.com/anaxaim/tui/pkg/repository"
+	"github.com/anaxaim/tui/server/pkg/model"
+	"github.com/anaxaim/tui/server/pkg/repository"
 )
 
 const (

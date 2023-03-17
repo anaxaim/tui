@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 
-	"github.com/anaxaim/tui/pkg/model"
+	"github.com/anaxaim/tui/server/pkg/model"
 )
 
 type Repository interface {

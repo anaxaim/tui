@@ -9,8 +9,8 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 
-	"github.com/anaxaim/tui/pkg/database"
-	"github.com/anaxaim/tui/pkg/model"
+	"github.com/anaxaim/tui/server/pkg/database"
+	"github.com/anaxaim/tui/server/pkg/model"
 )
 
 var ErrConvertToHex = errors.New("failed to convert objectid to hex")

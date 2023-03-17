@@ -3,8 +3,8 @@ package common
 import (
 	"github.com/gin-gonic/gin"
 
-	"github.com/anaxaim/tui/pkg/model"
-	"github.com/anaxaim/tui/pkg/utils"
+	"github.com/anaxaim/tui/server/pkg/model"
+	"github.com/anaxaim/tui/server/pkg/utils"
 )
 
 func GetUser(c *gin.Context) *model.User {

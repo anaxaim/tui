@@ -5,12 +5,13 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"os"
 
 	"github.com/golang-migrate/migrate/v4"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
-	"github.com/anaxaim/tui/pkg/config"
+	"github.com/anaxaim/tui/server/pkg/config"
 )
 
 type MongoDB struct {
@@ -19,12 +20,21 @@ type MongoDB struct {
 }
 
 func NewMongoClient(conf *config.DBConfig) (*MongoDB, error) {
-	uri := fmt.Sprintf("mongodb://%s/%s", net.JoinHostPort(conf.Host, conf.Port), conf.Database)
+	mongoHost := conf.Host
+	if os.Getenv("MONGO_HOST") != "" {
+		mongoHost = os.Getenv("MONGO_HOST")
+	}
+
+	if mongoHost == "" {
+		mongoHost = "127.0.0.1"
+	}
+
+	uri := fmt.Sprintf("mongodb://%s/%s", net.JoinHostPort(mongoHost, conf.Port), conf.Database)
 	if err := CreateDBUser(conf.MigrationsPath, uri); err != nil {
 		return &MongoDB{}, err
 	}
 
-	newUserURI := fmt.Sprintf("mongodb://%s:%s@%s/%s", conf.User, conf.Password, net.JoinHostPort(conf.Host, conf.Port), conf.Database)
+	newUserURI := fmt.Sprintf("mongodb://%s:%s@%s/%s", conf.User, conf.Password, net.JoinHostPort(mongoHost, conf.Port), conf.Database)
 	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(newUserURI))
 	if err != nil {
 		return &MongoDB{}, err

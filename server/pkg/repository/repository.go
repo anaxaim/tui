@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 
-	"github.com/anaxaim/tui/pkg/database"
+	"github.com/anaxaim/tui/server/pkg/database"
 )
 
 func NewRepository(db *database.MongoDB) Repository {

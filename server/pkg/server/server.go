@@ -13,16 +13,16 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
-	"github.com/anaxaim/tui/pkg/authentication"
-	"github.com/anaxaim/tui/pkg/common"
-	"github.com/anaxaim/tui/pkg/config"
-	"github.com/anaxaim/tui/pkg/controller"
-	"github.com/anaxaim/tui/pkg/database"
-	"github.com/anaxaim/tui/pkg/middleware"
-	"github.com/anaxaim/tui/pkg/repository"
-	"github.com/anaxaim/tui/pkg/service"
-	"github.com/anaxaim/tui/pkg/utils"
-	"github.com/anaxaim/tui/pkg/version"
+	"github.com/anaxaim/tui/server/pkg/authentication"
+	"github.com/anaxaim/tui/server/pkg/common"
+	"github.com/anaxaim/tui/server/pkg/config"
+	"github.com/anaxaim/tui/server/pkg/controller"
+	"github.com/anaxaim/tui/server/pkg/database"
+	"github.com/anaxaim/tui/server/pkg/middleware"
+	"github.com/anaxaim/tui/server/pkg/repository"
+	"github.com/anaxaim/tui/server/pkg/service"
+	"github.com/anaxaim/tui/server/pkg/utils"
+	"github.com/anaxaim/tui/server/pkg/version"
 )
 
 func New(conf *config.Config, logger *logrus.Logger) (*Server, error) {
@@ -82,7 +82,12 @@ func (s *Server) Run() error {
 
 	s.initRouter()
 
-	addr := fmt.Sprintf("%s:%d", s.config.Server.Address, s.config.Server.Port)
+	serverHost := s.config.Server.Address
+	if os.Getenv("SERVER_HOST") != "" {
+		serverHost = os.Getenv("SERVER_HOST")
+	}
+
+	addr := fmt.Sprintf("%s:%d", serverHost, s.config.Server.Port)
 	s.logger.Infof("Start server on: %s", addr)
 
 	server := &http.Server{

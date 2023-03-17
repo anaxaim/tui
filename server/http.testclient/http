@@ -1,0 +1,47 @@
+@name = tui
+
+### healthz
+GET {{host}}/healthz
+
+### version
+GET {{host}}/version
+
+### SetToken
+POST {{host}}/api/v1/auth/token
+{
+    "name": "tui",
+    "password": "tui141422",
+    "setCookie": true
+}
+
+### DeleteToken
+DELETE {{host}}/api/v1/auth/token
+
+### UsersList
+GET {{host}}/api/v1/users
+
+### UserCreate
+POST {{host}}/api/v1/users
+{
+    "name": "iut",
+    "password": "tui666"
+}
+
+### UserGet
+GET {{host}}/api/v1/users/{{name}}
+
+### UserUpdate
+PUT {{host}}/api/v1/users/{{name}}
+{
+    "password": "tui1414245"
+}
+
+### UserDelete
+DELETE {{host}}/api/v1/users/{{name}}
+
+### UserRegister
+POST {{host}}/api/v1/auth/user
+{
+    "name": "kelly",
+    "password": "tui666"
+}

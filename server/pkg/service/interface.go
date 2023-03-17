@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/anaxaim/tui/pkg/model"
+	"github.com/anaxaim/tui/server/pkg/model"
 )
 
 type UserService interface {
