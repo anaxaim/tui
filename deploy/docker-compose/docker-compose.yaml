@@ -1,0 +1,60 @@
+version: "3.9"
+
+networks:
+  tui:
+    ipam:
+      driver: default
+      config:
+        - subnet: '177.7.0.0/16'
+
+volumes:
+  mongo:
+
+services:
+  server:
+    build:
+      context: ./server
+    container_name: tui-server
+    restart: always
+    ports:
+      - '8888:8888'
+    environment:
+      - SERVER_HOST=0.0.0.0
+      - MONGO_HOST=tui-mongo
+    depends_on:
+      - mongo
+    links:
+      - mongo
+    networks:
+      tui:
+        ipv4_address:
+          177.7.0.12
+
+  web:
+    build:
+      context: ./web
+    container_name: tui-web
+    restart: always
+    environment:
+      - TUI_BASE_PATH=tui-server
+    ports:
+      - '8080:80'
+    depends_on:
+      - server
+    command: [ 'nginx-debug', '-g', 'daemon off;' ]
+    networks:
+      tui:
+        ipv4_address:
+          177.7.0.13
+
+  mongo:
+    image: mongo:6.0.5
+    container_name: tui-mongo
+    restart: always
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo:/data/db
+    networks:
+      tui:
+        ipv4_address: 177.7.0.14

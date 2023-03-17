@@ -1,0 +1,18 @@
+# common
+**/.vscode
+**/.idea
+**/.gitignore
+**/Dockerfile.*
+**/Dockerfile
+**/Makefile
+**/.DS_Store
+
+# web
+**/node_modules
+**/dist
+**/dist-ssr
+**/package-lock.json
+
+# server
+**/vendor
+**/http.testclient
