@@ -19,11 +19,12 @@
 */
   import { GithubOne, Logout } from '@icon-park/vue-next';
   import { githubInfo } from '@/config.js';
-  import { delUser } from '@/utils';
+  import { getUser, delUser } from '@/utils';
   import { useRouter } from 'vue-router'
   import { ElNotification } from "element-plus"
   import request from "@/axios";
 
+  const user = getUser();
   const router = useRouter()
 
 /*
@@ -34,8 +35,7 @@
       console.log("logout success")
       ElNotification.success({
         title: 'Logout Success',
-        // message: 'Bye~ ' + user.name,
-        message: 'Bye~ ',
+        message: 'Bye~ ' + user.name,
         showClose: true,
         duration: 1500,
       })

@@ -94,8 +94,8 @@
   const showLogin = ref(true);
 
   const loginUser = reactive({
-    name: "admin",
-    password: "123456",
+    name: '',
+    password: '',
   });
 
   const login = async (form) => {
@@ -107,7 +107,7 @@
 
     await form.validate((valid, fields) => {
       if (valid) {
-        request.post("/api/v1/auth/token", {
+        request.post('/api/v1/auth/token', {
           name: loginUser.name,
           password: loginUser.password,
           setCookie: true,
@@ -121,10 +121,10 @@
           router.push('/modules');
         })
       } else {
-        console.log("input invalid", fields)
+        console.log('Invalid input =>', fields)
         ElMessage({
-          message: "Input invalid" + fields,
-          type: "error",
+          message: 'Invalid input',
+          type: 'error',
         });
       }
     });
@@ -136,9 +136,9 @@
   const registrationFormRef = ref();
 
   const registrationUser = reactive({
-    name: "",
-    email: "",
-    password: "",
+    name: '',
+    email: '',
+    password: '',
   });
 
   const register = async (form) => {
@@ -148,7 +148,7 @@
 
     await form.validate((valid, fields) => {
       if (valid) {
-        request.post("/api/v1/auth/user", {
+        request.post('/api/v1/auth/user', {
           name: registrationUser.name,
           password: registrationUser.password,
           email: registrationUser.email,
@@ -161,10 +161,10 @@
           loginUser.password = registrationUser.password;
         })
       } else {
-        console.log("Input invalid =>", fields)
+        console.log('Invalid input =>', fields)
         ElMessage({
-          message: "Input invalid",
-          type: "error",
+          message: 'Invalid input',
+          type: 'error',
         });
       }
     });
