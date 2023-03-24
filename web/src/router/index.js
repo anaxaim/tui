@@ -1,25 +1,29 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import {createRouter, createWebHistory} from 'vue-router'
+import Login from 'views/Login.vue'
+import Modules from 'views/Modules.vue'
+import Stacks from 'views/Stacks.vue'
 import { getUser } from '@/utils'
 
 const routes = [
-  {
-    path: '/',
-    name: 'Home',
-    component: () => import("views/Home.vue"),
-    redirect: '/modules',
-    children: [
-      {
-        path: '/modules',
-        name: 'Modules',
-        component: () => import("views/Modules.vue")
-      }
-    ]
-  },
-  {
-    path: '/login',
-    name: 'Login',
-    component: () => import("views/auth/Login.vue")
-  },
+    {
+      path: '/',
+      redirect: '/login'
+    },
+    {
+      path: '/login',
+      name: 'Login',
+      component: Login
+    },
+    {
+      path: '/modules',
+      name: 'Modules',
+      component: Modules
+    },
+    {
+      path: '/stacks',
+      name: 'Stacks',
+      component: Stacks
+    }
 ]
 
 const router = createRouter({
@@ -35,7 +39,8 @@ router.beforeEach((to, from, next) => {
   }
 
   if (!isAuthenticated && to.name !== 'Login') next({ name: 'Login' })
+  else if(isAuthenticated && to.name === 'Login' ) next({ name: 'Modules'})
   else next()
 })
 
-export default router
+export default router;

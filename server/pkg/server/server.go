@@ -47,12 +47,6 @@ func New(conf *config.Config, logger *logrus.Logger) (*Server, error) {
 	e.Use(
 		gin.Recovery(),
 		middleware.CORSMiddleware(),
-		middleware.LogMiddleware(logger, "/"),
-	)
-
-	e.Use(
-		gin.Recovery(),
-		middleware.CORSMiddleware(),
 		middleware.RequestInfoMiddleware(&utils.RequestInfoFactory{APIPrefixes: utils.NewString("api")}),
 		middleware.LogMiddleware(logger, "/"),
 		middleware.AuthenticationMiddleware(jwtService, repo.User()),

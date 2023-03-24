@@ -1,30 +1,39 @@
 <template>
-  <router-view />
+  <div v-if="route.path !== '/login'">
+    <Header/>
+    <div class="menu"><Menu/></div>
+  </div>
+  <div class="menu__items"><RouterView/></div>
 </template>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  height: 100vh;
-  /* width: 100%; */
-}
+<script setup>
+/*
+  imports
+*/
+  import Header from '@/components/layout/Header.vue';
+  import Menu from '@/components/layout/Menu.vue';
+  import { RouterView, useRoute } from 'vue-router'
 
-::-webkit-scrollbar {
-  background-color: #71717a;
-  border-radius: 10px;
-  width: 5px;
-  height:5px;
-}
+  const route = useRoute();
+</script>
 
-::-webkit-scrollbar-thumb {
-  border-radius: 10px;
-  background: #71717a;
-}
+<style lang="scss">
+  #app {
+    font-family: Avenir, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 
-::-webkit-scrollbar-track {
-  border-radius: 10px;
-  background: #fff;
-}
+  .menu {
+    display: flex;
+    flex-direction: row;
+    flex-grow: 0.8;
+    overflow: hidden;
+  }
+
+  .menu__items {
+    overflow: scroll;
+    display: flex;
+    margin-left: 230px;
+  }
 </style>

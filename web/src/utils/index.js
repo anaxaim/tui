@@ -21,13 +21,13 @@ export function setCookie(cname, cvalue, days) {
     document.cookie = cname + "=" + value;
 }
 
+export function delUser() {
+    setCookie('loginUser', '', -1)
+}
+
 export function getUser() {
     let obj = getCookie('loginUser');
     if (obj) {
         return JSON.parse(obj);
     }
-}
-
-export function delUser() {
-    setCookie('loginUser', '', -1)
 }
