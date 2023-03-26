@@ -34,12 +34,14 @@ func New(conf *config.Config, logger *logrus.Logger) (*Server, error) {
 	repo := repository.NewRepository(db)
 
 	userService := service.NewUserService(repo.User())
+	moduleService := service.NewModuleService(repo.Module())
 	jwtService := authentication.NewJWTService(conf.Server.JWTSecret)
 
 	userController := controller.NewUserController(userService)
+	moduleController := controller.NewModuleController(moduleService)
 	authController := controller.NewAuthController(userService, jwtService)
 
-	controllers := []controller.Controller{userController, authController}
+	controllers := []controller.Controller{userController, moduleController, authController}
 
 	gin.SetMode(conf.Server.ENV)
 

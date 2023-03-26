@@ -8,6 +8,7 @@ import (
 
 type Repository interface {
 	User() UserRepository
+	Module() ModuleRepository
 	Close() error
 	Ping(ctx context.Context) error
 }
@@ -23,5 +24,14 @@ type UserRepository interface { //nolint: interfacebloat
 	AddAuthInfo(authInfo *model.AuthInfo) error
 	DelAuthInfo(authInfo *model.AuthInfo) error
 	Exists(string) (bool, error)
+	Migrate() error
+}
+
+type ModuleRepository interface {
+	GetModuleByID(string) (*model.TerraformModule, error)
+	List() (model.TerraformModules, error)
+	Create(*model.TerraformModule) (*model.TerraformModule, error)
+	Update(*model.TerraformModule) (*model.TerraformModule, error)
+	Delete(*model.TerraformModule) error
 	Migrate() error
 }

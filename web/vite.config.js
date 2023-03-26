@@ -52,7 +52,7 @@ export default ({ mode }) => {
           target: `${env.TUI_BASE_PATH}:${env.TUI_SERVER_PORT}`,
           changeOrigin: true,
           ws: true,
-          rewrite: (path) => path.replace(/^\/api/, '')
+          rewrite: (path) => path.replace(/^\/api/, '/api')
         }
       }
     }

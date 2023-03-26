@@ -45,3 +45,25 @@ POST {{host}}/api/v1/auth/user
     "name": "kelly",
     "password": "tui666"
 }
+
+### ModuleCreate
+POST {{host}}/api/v1/modules
+{
+    "name": "edge"
+}
+
+### ModulesList
+GET {{host}}/api/v1/modules
+
+### ModuleGet
+GET {{host}}/api/v1/modules/641f3a5ff71f8797904f0522
+
+### ModuleDelete
+DELETE {{host}}/api/v1/modules/641f351af71f8797904f0521
+
+### ModuleUpdate
+PUT {{host}}/api/v1/modules/641f3a5ff71f8797904f0522
+{
+    "gitRepositoryUrl": "https://github.com/anaxaim/t_modules",
+    "name": "edgenew"
+}

@@ -13,3 +13,12 @@ type UserService interface {
 	Validate(*model.User) error
 	Auth(*model.AuthUser) (*model.User, error)
 }
+
+type ModuleService interface {
+	List() (model.TerraformModules, error)
+	Get(string) (*model.TerraformModule, error)
+	Create(*model.TerraformModule) (*model.TerraformModule, error)
+	Update(string, *model.TerraformModule) (*model.TerraformModule, error)
+	Delete(id string) error
+	Validate(*model.TerraformModule) error
+}

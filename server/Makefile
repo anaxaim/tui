@@ -30,7 +30,7 @@ SERVER_IMG=tui-server
 MONGO_IMG=tui-mongo
 mongo:
 	docker rm -f $(MONGO_IMG) &>/dev/null && echo 'Removed old container' ; \
-	docker run --name $(MONGO_IMG) -d -p 27017:27017 mongo:jammy
+	docker run --name $(MONGO_IMG) -d -p 27017:27017 mongo:6.0.5
 
 docker-build-server: ## build server image
 	docker build -t $(SERVER_IMG) .

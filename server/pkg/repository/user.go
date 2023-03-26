@@ -13,8 +13,6 @@ import (
 	"github.com/anaxaim/tui/server/pkg/model"
 )
 
-var ErrConvertToHex = errors.New("failed to convert objectid to hex")
-
 type userRepository struct {
 	collection *mongo.Collection
 }
