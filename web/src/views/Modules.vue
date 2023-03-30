@@ -38,18 +38,18 @@
         </div>
         <el-divider/>
         <div>
-          <el-button type="primary" style="margin-bottom: 1rem;" :icon="Plus" size="small" @click="addVariable">Add variable</el-button>
+          <el-button type="primary" style="margin-bottom: 1rem;" :icon="Plus" size="default" @click="addVariable">Add variable</el-button>
           <div v-for="(variable, index) in newModule.variables" :key="index" class="form_content">
             <el-form-item>
               <el-button type="danger" :icon="Minus" @click="removeVariable(index)"></el-button>
             </el-form-item>
-            <el-form-item style="width: 25%;" label="Name" :prop="'variables.' + index + '.name'" required>
+            <el-form-item style="width: 25%;" label="Name" :prop="`variables.${index}.name`" required>
               <el-input v-model="variable.name" />
             </el-form-item>
-            <el-form-item style="width: 25%;" label="Default Value" :prop="'variables.' + index + '.defaultValue'">
+            <el-form-item style="width: 25%;" label="Default Value" :prop="`variables.${index}.defaultValue`">
               <el-input v-model="variable.defaultValue" />
             </el-form-item>
-            <el-form-item style="width: 30%;" label="Description" :prop="'variables.' + index + '.description'">
+            <el-form-item style="width: 30%;" label="Description" :prop="`variables.${index}.description`">
               <el-input v-model="variable.description" />
             </el-form-item>
             <el-form-item style="width: 10%; margin-bottom: 0.5rem;">
@@ -72,7 +72,8 @@
       <el-form ref="updateFormRef" :model="updatedModule" label-position="top" label-width="auto">
         <div class="form_content">
           <el-form-item style="width: 45%;" label="Name" prop="name" required>
-            <el-input v-model="updatedModule.name" disabled/>
+            <el-input v-model="updatedModule.name"/>
+            <span>The name of your module</span>
           </el-form-item>
           <el-form-item style="width: 55%;" label="Description" prop="description">
             <el-input v-model="updatedModule.description" type="textarea" />
@@ -85,7 +86,7 @@
             <span>The main provider of this module</span>
           </el-form-item>
           <el-form-item style="width: 25%; margin-right: 5rem;" label="Provider version" prop="providerVersion">
-            <el-input v-model="updatedModule.providerVersion" disabled/>
+            <el-input v-model="updatedModule.providerVersion"/>
             <span>The version of the provider</span>
           </el-form-item>
           <el-form-item style="width: 20%;" label="Terraform version" prop="terraformVersion">
@@ -99,15 +100,37 @@
             <span>The URL of the module's git repository</span>
           </el-form-item>
           <el-form-item style="width: 40%;" label="Git repository directory" prop="directory">
-            <el-input v-model="newModule.directory" disabled/>
+            <el-input v-model="newModule.directory"/>
             <span>The sub-directory of the module's code inside the repository</span>
           </el-form-item>
+        </div>
+        <el-divider/>
+        <div>
+          <el-button type="primary" style="margin-bottom: 1rem;" :icon="Plus" size="default" @click="addVariable">Add variable</el-button>
+          <div v-for="(variable, index) in updatedModule.variables" :key="index" class="form_content">
+            <el-form-item>
+              <el-button type="danger" :icon="Minus" @click="removeVariable(index)"></el-button>
+            </el-form-item>
+            <el-form-item style="width: 25%;" label="Name" :prop="`variables.${index}.name`" required>
+              <el-input v-model="variable.name" />
+            </el-form-item>
+            <el-form-item style="width: 25%;" label="Default Value" :prop="`variables.${index}.defaultValue`">
+              <el-input v-model="variable.defaultValue" />
+            </el-form-item>
+            <el-form-item style="width: 30%;" label="Description" :prop="`variables.${index}.description`">
+              <el-input v-model="variable.description" />
+            </el-form-item>
+            <el-form-item style="width: 10%; margin-bottom: 0.5rem;">
+              <el-checkbox label="Editable" v-model="variable.editable" style="margin-bottom: -6px;"/>
+              <el-checkbox label="Mandatory" v-model="variable.mandatory" style="margin-top: -6px;"/>
+            </el-form-item>
+          </div>
         </div>
 
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-          <el-button type="success" @click="updateModule()">Save</el-button>
+          <el-button type="success" @click="updateModule()">Update</el-button>
           <el-button type="danger" @click="showUpdate = false">Cancel</el-button>
         </span>
       </template>
@@ -256,11 +279,13 @@ import {ElMessage} from "element-plus";
             repository: "hashicorp/terraform",
             tag: newModule.value.terraformVersion,
           },
+          variables: newModule.value.variables
         }).then((response) => {
           ElMessage.success("Create success");
           modules.value.push(response.data.data);
           showCreate.value = false;
           form.resetFields()
+          newModule.value.variables = []
         })
       } else {
         ElMessage.error("Input invalid");
@@ -316,11 +341,12 @@ import {ElMessage} from "element-plus";
     registryDetails: {
       registryType: '',
       projectId: ''
-    }
+    },
+    variables: [],
   });
 
   const editModule = (row) => {
-    updatedModule.value = Object.assign({}, row);
+    updatedModule.value = { ...row };
     showUpdate.value = true;
   }
 
