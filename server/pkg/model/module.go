@@ -40,11 +40,4 @@ type TerraformImage struct {
 	Tag        string `json:"tag" bson:"tag"`
 }
 
-type RegistryDetails struct {
-	Provider    string `json:"provider,omitempty" bson:"provider,omitempty"`
-	Namespace   string `json:"namespace,omitempty" bson:"namespace,omitempty"`
-	DisplayName string `json:"displayName,omitempty" bson:"displayName,omitempty" `
-	Certified   bool   `json:"certified,omitempty" bson:"certified,omitempty"`
-}
-
 type TerraformModules []TerraformModule

@@ -12,7 +12,6 @@
             <span>The description of your module</span>
           </el-form-item>
         </div>
-
         <div class="form_content">
           <el-form-item style="width: 45%;" label="Main provider" prop="mainProvider" required>
             <el-input v-model="newModule.mainProvider" />
@@ -37,7 +36,30 @@
             <span>The sub-directory of the module's code inside the repository</span>
           </el-form-item>
         </div>
+        <el-divider/>
+        <div>
+          <el-button type="primary" style="margin-bottom: 1rem;" :icon="Plus" size="small" @click="addVariable">Add variable</el-button>
+          <div v-for="(variable, index) in newModule.variables" :key="index" class="form_content">
+            <el-form-item>
+              <el-button type="danger" :icon="Minus" @click="removeVariable(index)"></el-button>
+            </el-form-item>
+            <el-form-item style="width: 25%;" label="Name" :prop="'variables.' + index + '.name'" required>
+              <el-input v-model="variable.name" />
+            </el-form-item>
+            <el-form-item style="width: 25%;" label="Default Value" :prop="'variables.' + index + '.defaultValue'">
+              <el-input v-model="variable.defaultValue" />
+            </el-form-item>
+            <el-form-item style="width: 30%;" label="Description" :prop="'variables.' + index + '.description'">
+              <el-input v-model="variable.description" />
+            </el-form-item>
+            <el-form-item style="width: 10%; margin-bottom: 0.5rem;">
+              <el-checkbox label="Editable" v-model="variable.editable" style="margin-bottom: -6px;"/>
+              <el-checkbox label="Mandatory" v-model="variable.mandatory" style="margin-top: -6px;"/>
+            </el-form-item>
+          </div>
+        </div>
       </el-form>
+
       <template #footer>
           <span class="dialog-footer">
             <el-button type="success" @click="createModule">Create</el-button>
@@ -107,26 +129,47 @@
                 </el-icon>
               </template>
             </el-input>
-            <el-button type="success" :icon="CloudStorage" @Click="showCreate = true">Create</el-button>
+            <el-button type="success" :icon="CloudStorage" @click="showCreate = true">Create</el-button>
           </div>
         </template>
 
         <el-table :data="filter" height="360">
-          <el-table-column prop="name" label="Name" sortable min-width="40px"/>
-          <el-table-column prop="gitRepositoryUrl" label="Repository" min-width="150px" />
+          <el-table-column prop="name" label="Name" sortable min-width="40px">
+            <template #default="{row}">
+              <el-popover placement="top-end" :width="200" :disabled="!row.description">
+                <template #reference>
+                  <div>{{ row.name }}</div>
+                </template>
+                <p>{{ row.description }}</p>
+              </el-popover>
+            </template>
+          </el-table-column>
+          <el-table-column prop="registryDetails.projectId" label="Registry" min-width="150px">
+            <template #default="{row}">
+            <span>
+              <el-button link >
+                <a :href="row.gitRepositoryUrl" target="_blank">
+                  <GithubOne v-if="row.registryDetails.registryType === 'github'" size="20"/>
+                  <Gitlab v-else-if="row.registryDetails.registryType === 'gitlab'" theme="two-tone" :fill="['#333' ,'#f6650a']" :strokeWidth="2" size="20"/>
+                </a>
+              </el-button>
+              {{ row.registryDetails.projectId }}
+            </span>
+            </template>
+          </el-table-column>
           <el-table-column prop="mainProvider" label="Provider" />
-          <el-table-column prop="createdAt" label="Created" sortable min-width="80px" />
-          <el-table-column prop="updatedAt" label="Updated" sortable min-width="80px" />
+          <el-table-column prop="createdAtString" label="Created" sortable min-width="80px" />
+          <el-table-column prop="updatedAtString" label="Updated" sortable min-width="80px" />
           <el-table-column prop="Operations" label="Operations" min-width="100px">
             <template #default="scope">
               <el-button class="operation_icon" type="success" size="small" circle :icon="PlayOne" />
               <el-button class="operation_icon" type="warning" size="small" circle @click="editModule(scope.row)" :icon="Edit" />
               <el-button class="operation_icon" size="small" circle :icon="Log" />
-              <el-popover :visible="showDelete === scope.$index" placement="top" :width="140">
+              <el-popover :visible="showDelete === scope.$index" placement="top-start">
                 <template #reference>
                   <el-button size="small" type="danger" circle @click="showDelete = scope.$index" :icon="Delete" />
                 </template>
-                <p>Delete this module?</p>
+                <div style="margin-bottom: 0.5rem;">Delete this module?</div>
                 <span style="margin-left: 0.5rem;">
                   <el-button size="small" text @click="showDelete = -1">no</el-button>
                   <el-button size="small" type="danger" @click="deleteModule(scope.row)">yes</el-button>
@@ -145,7 +188,7 @@
   imports
 */
 import PageHeader from '@/components/PageHeader.vue'
-import {CloudStorage, Delete, Edit, Log, PlayOne, Search} from '@icon-park/vue-next'
+import {CloudStorage, Delete, Edit, Log, PlayOne, Search, GithubOne, Gitlab, Plus, Minus} from '@icon-park/vue-next'
 
 import {computed, onMounted, ref, unref} from 'vue';
 import request from '@/axios'
@@ -177,7 +220,6 @@ import {ElMessage} from "element-plus";
   create module
 */
   const showCreate = ref(false);
-  const defaultTime = { timeout: "10000" }
   const createModuleRef = ref();
   const newModule = ref({
     name: '',
@@ -187,7 +229,12 @@ import {ElMessage} from "element-plus";
     directory: '',
     mainProvider: '',
     providerVersion: '',
-    terraformVersion: ''
+    terraformVersion: '',
+    registryDetails: {
+      registryType: '',
+      projectId: ''
+    },
+    variables: [],
   });
 
   const createModule = () => {
@@ -198,7 +245,6 @@ import {ElMessage} from "element-plus";
 
     form.validate((valid) => {
       if (valid) {
-        const createdAt = new Date();
         request.post("/api/v1/modules", {
           name: newModule.value.name,
           description: newModule.value.description,
@@ -210,17 +256,34 @@ import {ElMessage} from "element-plus";
             repository: "hashicorp/terraform",
             tag: newModule.value.terraformVersion,
           },
-          CreatedAt: createdAt.toISOString(),
         }).then((response) => {
           ElMessage.success("Create success");
           modules.value.push(response.data.data);
           showCreate.value = false;
+          form.resetFields()
         })
       } else {
         ElMessage.error("Input invalid");
       }
     })
   }
+
+/*
+  variables
+*/
+  const addVariable = () => {
+    newModule.value.variables.push({
+      name: "",
+      description: "",
+      defaultValue: "",
+      editable: false,
+      mandatory: false,
+    });
+  };
+
+  const removeVariable = (index) => {
+    newModule.value.variables.splice(index, 1);
+  };
 
 /*
   delete module
@@ -241,6 +304,7 @@ import {ElMessage} from "element-plus";
   const updateFormRef = ref();
   const showUpdate = ref(false);
   const updatedModule = ref({
+    id: '',
     name: '',
     description: '',
     provider: '',
@@ -249,6 +313,10 @@ import {ElMessage} from "element-plus";
     mainProvider: '',
     providerVersion: '',
     terraformVersion: '',
+    registryDetails: {
+      registryType: '',
+      projectId: ''
+    }
   });
 
   const editModule = (row) => {
@@ -307,6 +375,7 @@ import {ElMessage} from "element-plus";
     flex-direction: row;
     width: 100%;
     gap: 10px;
+    align-items: flex-end;
   }
 
   .operation_icon {

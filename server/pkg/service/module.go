@@ -2,6 +2,9 @@ package service
 
 import (
 	"errors"
+	"net/url"
+	"strings"
+	"time"
 
 	"github.com/anaxaim/tui/server/pkg/model"
 	"github.com/anaxaim/tui/server/pkg/repository"
@@ -22,6 +25,24 @@ func (m *moduleService) List() (model.TerraformModules, error) {
 }
 
 func (m *moduleService) Create(module *model.TerraformModule) (*model.TerraformModule, error) {
+	parsedUrl, err := url.Parse(module.GitRepositoryURL)
+	if err != nil {
+		return nil, err
+	}
+
+	domain := parsedUrl.Hostname()
+	path := strings.TrimLeft(parsedUrl.Path, "/")
+	if strings.Contains(domain, model.GITHUB) {
+		module.RegistryDetails.RegistryType = model.GITHUB
+		module.RegistryDetails.ProjectID = path
+	} else if strings.Contains(domain, model.GITLAB) {
+		module.RegistryDetails.RegistryType = model.GITLAB
+		module.RegistryDetails.ProjectID = path
+	}
+
+	currentTime := time.Now()
+	module.CreatedAt = currentTime
+	module.CreatedAtString = currentTime.Format("15:04:05 02/01/2006")
 	return m.moduleRepository.Create(module)
 }
 
@@ -36,6 +57,9 @@ func (m *moduleService) Update(id string, newModule *model.TerraformModule) (*mo
 	}
 
 	newModule.ID = old.ID
+	currentTime := time.Now()
+	newModule.UpdatedAt = &currentTime
+	newModule.UpdatedAtString = currentTime.Format("15:04:05 02/01/2006")
 
 	return m.moduleRepository.Update(newModule)
 }
