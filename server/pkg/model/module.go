@@ -2,6 +2,15 @@ package model
 
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
+type Status string
+
+const (
+	CREATED Status = "CREATED"
+	UPDATED Status = "UPDATED"
+	RUNNING Status = "RUNNING"
+	ERROR   Status = "ERROR"
+)
+
 type TerraformModule struct {
 	ID               primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
 	GitRepositoryURL string             `json:"gitRepositoryUrl" bson:"gitRepositoryUrl"`
@@ -14,6 +23,7 @@ type TerraformModule struct {
 	TerraformImage   TerraformImage     `json:"terraformImage,omitempty" bson:"terraformImage,omitempty" `
 	RegistryDetails  RegistryDetails    `json:"registryDetails,omitempty" bson:"registryDetails,omitempty"`
 	MainProvider     string             `json:"mainProvider,omitempty" bson:"mainProvider,omitempty"`
+	Status           Status             `json:"status,omitempty" bson:"status,omitempty"`
 
 	BaseModel
 }

@@ -43,6 +43,7 @@ func (m *moduleService) Create(module *model.TerraformModule) (*model.TerraformM
 	currentTime := time.Now()
 	module.CreatedAt = currentTime
 	module.CreatedAtString = currentTime.Format("15:04:05 02/01/2006")
+	module.Status = model.CREATED
 
 	return m.moduleRepository.Create(module)
 }
@@ -61,6 +62,7 @@ func (m *moduleService) Update(id string, newModule *model.TerraformModule) (*mo
 	currentTime := time.Now()
 	newModule.UpdatedAt = &currentTime
 	newModule.UpdatedAtString = currentTime.Format("15:04:05 02/01/2006")
+	newModule.Status = model.UPDATED
 
 	return m.moduleRepository.Update(newModule)
 }

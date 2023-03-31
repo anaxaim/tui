@@ -88,7 +88,19 @@ func (r *registryService) ImportModuleContentByID(id string) (*model.RegistryCon
 
 	registry.Content = content
 
-	return r.registryRepository.Save(registry)
+	registryInfo, err := r.registryRepository.Save(registry)
+	if err != nil {
+		module.Status = model.ERROR
+	} else {
+		module.Status = model.RUNNING
+	}
+
+	_, err = r.moduleRepository.Update(module)
+	if err != nil {
+		return nil, err
+	}
+
+	return registryInfo, nil
 }
 
 func (r *registryService) GetModuleContentByID(id string) (*model.RegistryContent, error) {

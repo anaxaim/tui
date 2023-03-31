@@ -156,8 +156,8 @@
           </div>
         </template>
 
-        <el-table :data="filter" height="360">
-          <el-table-column prop="name" label="Name" sortable min-width="40px">
+        <el-table :data="filtration" height="360">
+          <el-table-column prop="name" label="Name" sortable min-width="50px">
             <template #default="{row}">
               <el-popover placement="top-end" :width="200" :disabled="!row.description">
                 <template #reference>
@@ -183,9 +183,9 @@
           <el-table-column prop="mainProvider" label="Provider" />
           <el-table-column prop="createdAtString" label="Created" sortable min-width="80px" />
           <el-table-column prop="updatedAtString" label="Updated" sortable min-width="80px" />
-          <el-table-column prop="Operations" label="Operations" min-width="100px">
+          <el-table-column prop="Operations" label="Operations" min-width="80px">
             <template #default="scope">
-              <el-button class="operation_icon" type="success" size="small" circle :icon="PlayOne" />
+              <el-button class="operation_icon" type="success" size="small" circle @click="importRegistry(scope.row.id)" :icon="PlayOne" />
               <el-button class="operation_icon" type="warning" size="small" circle @click="editModule(scope.row)" :icon="Edit" />
               <el-button class="operation_icon" size="small" circle :icon="Log" />
               <el-popover :visible="showDelete === scope.$index" placement="top-start">
@@ -198,6 +198,11 @@
                   <el-button size="small" type="danger" @click="deleteModule(scope.row)">yes</el-button>
                 </span>
               </el-popover>
+            </template>
+          </el-table-column>
+          <el-table-column prop="status" label="Status" min-width="90px">
+            <template #default="scope">
+              <el-tag :type="getStatusType(scope.row.status)"> {{ scope.row.status }} </el-tag>
             </template>
           </el-table-column>
         </el-table>
@@ -218,25 +223,27 @@ import request from '@/axios'
 import {ElMessage} from "element-plus";
 
 /*
-  filtration and search
-*/
-  const search = ref('');
-  const filter = computed(() =>
-      modules.value.filter(
-          (data) => !search.value || data.name.toLowerCase().includes(search.value.toLowerCase())
-      )
-  )
-
-/*
   modules list
 */
   const modules = ref([]);
   onMounted(
       () => {
-        request.get("/api/v1/modules").then((response) => {
-          modules.value = response.data.data;
-        })
+        request
+            .get("/api/v1/modules")
+            .then((response) => {
+              modules.value = response.data.data;
+            })
       }
+  )
+
+/*
+  filtration and search
+*/
+  const search = ref('');
+  const filtration = computed(() =>
+      modules.value.filter(
+          (data) => !search.value || data.name.toLowerCase().includes(search.value.toLowerCase())
+      )
   )
 
 /*
@@ -268,31 +275,36 @@ import {ElMessage} from "element-plus";
 
     form.validate((valid) => {
       if (valid) {
-        request.post("/api/v1/modules", {
-          name: newModule.value.name,
-          description: newModule.value.description,
-          gitRepositoryUrl: newModule.value.gitRepositoryUrl,
-          directory: newModule.value.directory,
-          mainProvider: newModule.value.mainProvider,
-          providerVersion: newModule.value.providerVersion,
-          terraformImage: {
-            repository: "hashicorp/terraform",
-            tag: newModule.value.terraformVersion,
-          },
-          variables: newModule.value.variables
-        }).then((response) => {
-          ElMessage.success("Create success");
-          modules.value.push(response.data.data);
-          showCreate.value = false;
-          form.resetFields()
-          newModule.value.variables = []
-        })
+        request
+            .post('/api/v1/modules', {
+              name: newModule.value.name,
+              description: newModule.value.description,
+              gitRepositoryUrl: newModule.value.gitRepositoryUrl,
+              directory: newModule.value.directory,
+              mainProvider: newModule.value.mainProvider,
+              providerVersion: newModule.value.providerVersion,
+              terraformImage: {
+                repository: 'hashicorp/terraform',
+                tag: newModule.value.terraformVersion,
+              },
+              variables: newModule.value.variables,
+            })
+            .then((response) => {
+              ElMessage.success("Create success");
+              modules.value.push(response.data.data);
+              showCreate.value = false;
+              form.resetFields()
+              newModule.value.variables = []
+            })
+            .catch(err => {
+              console.error("Create module error:", err);
+              ElMessage.error("Module creation error");
+            });
       } else {
         ElMessage.error("Input invalid");
       }
     })
   }
-
 /*
   variables
 */
@@ -316,12 +328,18 @@ import {ElMessage} from "element-plus";
   const showDelete = ref(-1);
 
   const deleteModule = (row) => {
-    request.delete("/api/v1/modules/" + row.id).then(() => {
-      ElMessage.success("Delete success");
-      const index = modules.value.findIndex(v => v.id === row.id);
-      modules.value.splice(index, 1);
-      showDelete.value = -1;
-    })
+    request
+        .delete("/api/v1/modules/" + row.id)
+        .then(() => {
+          ElMessage.success("Delete success");
+          const index = modules.value.findIndex(v => v.id === row.id);
+          modules.value.splice(index, 1);
+          showDelete.value = -1;
+        })
+        .catch(err => {
+          console.error("Delete module error:", err);
+          ElMessage.error("Delete module error");
+        });
   };
 /*
  edit module
@@ -358,18 +376,61 @@ import {ElMessage} from "element-plus";
 
     form.validate((valid, err) => {
       if (valid) {
-        updatedModule.value.updatedAt = new Date()
-        request.put("/api/v1/modules/" + updatedModule.value.id, updatedModule.value).then(() => {
-          ElMessage.success("Update success");
-          const index = modules.value.findIndex(v => v.id === updatedModule.value.id);
-          modules.value[index] = updatedModule.value;
-          showUpdate.value = false;
-        })
+        request
+            .put("/api/v1/modules/" + updatedModule.value.id, updatedModule.value)
+            .then((response) => {
+              ElMessage.success("Update success");
+              const index = modules.value.findIndex(v => v.id === updatedModule.value.id);
+              updatedModule.value.status = response.data.data.status;
+              updatedModule.value.updatedAtString = response.data.data.updatedAtString;
+              modules.value[index] = updatedModule.value;
+              showUpdate.value = false;
+            })
+            .catch(err => {
+              console.error("Update module error:", err);
+              ElMessage.error("Update module error");
+            });
       } else {
         ElMessage.error("Input invalid", err);
       }
     });
   };
+
+/*
+  import module
+*/
+
+  const importRegistry = (id) => {
+    request
+        .post(`/api/v1/registry/import/${id}`)
+        .then(() => {
+          ElMessage.success("Launched module import");
+          const index = modules.value.findIndex(v => v.id === id);
+          if (index !== -1) {
+            modules.value[index].status = 'RUNNING';
+            modules.value = [...modules.value];
+          }
+        })
+        .catch(err => {
+          console.error("Import module error:", err);
+          ElMessage.error("Import module error");
+        });
+  }
+
+/*
+  status
+*/
+  const getStatusType = (status) => {
+    if (status === "RUNNING") {
+      return "success"
+    } else if (status === "CREATED" || status === "UPDATED") {
+      return "warning"
+    } else if (status === "ERROR") {
+      return "danger"
+    } else {
+      return "info"
+    }
+  }
 </script>
 
 <style lang="scss">
