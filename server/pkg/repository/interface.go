@@ -9,6 +9,7 @@ import (
 type Repository interface {
 	User() UserRepository
 	Module() ModuleRepository
+	Registry() RegistryRepository
 	Close() error
 	Ping(ctx context.Context) error
 }
@@ -34,4 +35,9 @@ type ModuleRepository interface {
 	Update(*model.TerraformModule) (*model.TerraformModule, error)
 	Delete(*model.TerraformModule) error
 	Migrate() error
+}
+
+type RegistryRepository interface {
+	Save(registry *model.RegistryContent) (*model.RegistryContent, error)
+	Get(string) (*model.RegistryContent, error)
 }

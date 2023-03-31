@@ -66,12 +66,6 @@ func (u *UserController) Create(c *gin.Context) {
 }
 
 func (u *UserController) Update(c *gin.Context) {
-	// user := common.GetUser(c)
-	// if user == nil {
-	// 	common.ResponseFailed(c, http.StatusForbidden, nil)
-	// 	return
-	// }
-
 	newUser := new(model.User)
 	if err := c.BindJSON(newUser); err != nil {
 		common.ResponseFailed(c, http.StatusBadRequest, err)
@@ -89,12 +83,6 @@ func (u *UserController) Update(c *gin.Context) {
 }
 
 func (u *UserController) Delete(c *gin.Context) {
-	// user := common.GetUser(c)
-	// if user == nil {
-	// 	common.ResponseFailed(c, http.StatusForbidden, nil)
-	// 	return
-	// }
-
 	if err := u.userService.Delete(c.Param("name")); err != nil {
 		common.ResponseFailed(c, http.StatusBadRequest, err)
 		return

@@ -49,7 +49,8 @@ POST {{host}}/api/v1/auth/user
 ### ModuleCreate
 POST {{host}}/api/v1/modules
 {
-    "name": "edge"
+    "name": "edge",
+    "gitRepositoryUrl": "https://github.com/anaxaim/t_modules"
 }
 
 ### ModulesList
@@ -62,8 +63,14 @@ GET {{host}}/api/v1/modules/641f3a5ff71f8797904f0522
 DELETE {{host}}/api/v1/modules/641f351af71f8797904f0521
 
 ### ModuleUpdate
-PUT {{host}}/api/v1/modules/641f3a5ff71f8797904f0522
+PUT {{host}}/api/v1/modules/6421f0cfd8a3c84f8560cc06
 {
-    "gitRepositoryUrl": "https://github.com/anaxaim/t_modules",
-    "name": "edgenew"
+    "gitRepositoryUrl": "https://github.com/anaxaim/t_modulesss",
+    "name": "edge"
 }
+
+### ImportModuleContent
+POST {{host}}/api/v1/registry/import/6425acfb11f8d1f6a1edb3c5
+
+### GetModuleContent
+GET {{host}}/api/v1/registry/6425be85659882a7c88886ef

@@ -40,4 +40,9 @@ type TerraformImage struct {
 	Tag        string `json:"tag" bson:"tag"`
 }
 
+type RegistryDetails struct {
+	RegistryType RegistryType `json:"registryType,omitempty" bson:"registryType,omitempty"`
+	ProjectID    string       `json:"projectId,omitempty" bson:"projectId,omitempty"`
+}
+
 type TerraformModules []TerraformModule

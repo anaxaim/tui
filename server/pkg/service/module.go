@@ -25,17 +25,17 @@ func (m *moduleService) List() (model.TerraformModules, error) {
 }
 
 func (m *moduleService) Create(module *model.TerraformModule) (*model.TerraformModule, error) {
-	parsedUrl, err := url.Parse(module.GitRepositoryURL)
+	parsedURL, err := url.Parse(module.GitRepositoryURL)
 	if err != nil {
 		return nil, err
 	}
 
-	domain := parsedUrl.Hostname()
-	path := strings.TrimLeft(parsedUrl.Path, "/")
-	if strings.Contains(domain, model.GITHUB) {
+	domain := parsedURL.Hostname()
+	path := strings.TrimLeft(parsedURL.Path, "/")
+	if strings.Contains(domain, string(model.GITHUB)) {
 		module.RegistryDetails.RegistryType = model.GITHUB
 		module.RegistryDetails.ProjectID = path
-	} else if strings.Contains(domain, model.GITLAB) {
+	} else if strings.Contains(domain, string(model.GITLAB)) {
 		module.RegistryDetails.RegistryType = model.GITLAB
 		module.RegistryDetails.ProjectID = path
 	}
@@ -43,15 +43,16 @@ func (m *moduleService) Create(module *model.TerraformModule) (*model.TerraformM
 	currentTime := time.Now()
 	module.CreatedAt = currentTime
 	module.CreatedAtString = currentTime.Format("15:04:05 02/01/2006")
+
 	return m.moduleRepository.Create(module)
 }
 
 func (m *moduleService) Get(id string) (*model.TerraformModule, error) {
-	return m.getModuleByID(id)
+	return m.GetModuleByID(id)
 }
 
 func (m *moduleService) Update(id string, newModule *model.TerraformModule) (*model.TerraformModule, error) {
-	old, err := m.getModuleByID(id)
+	old, err := m.GetModuleByID(id)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +66,7 @@ func (m *moduleService) Update(id string, newModule *model.TerraformModule) (*mo
 }
 
 func (m *moduleService) Delete(id string) error {
-	module, err := m.getModuleByID(id)
+	module, err := m.GetModuleByID(id)
 	if err != nil {
 		return err
 	}
@@ -81,6 +82,6 @@ func (m *moduleService) Validate(module *model.TerraformModule) error {
 	return nil
 }
 
-func (m *moduleService) getModuleByID(id string) (*model.TerraformModule, error) {
+func (m *moduleService) GetModuleByID(id string) (*model.TerraformModule, error) {
 	return m.moduleRepository.GetModuleByID(id)
 }

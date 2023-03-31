@@ -61,12 +61,6 @@ func (m *ModuleController) Create(c *gin.Context) {
 }
 
 func (m *ModuleController) Update(c *gin.Context) {
-	// user := common.GetUser(c)
-	// if user == nil {
-	// 	common.ResponseFailed(c, http.StatusForbidden, nil)
-	// 	return
-	// }
-
 	newModule := new(model.TerraformModule)
 	if err := c.BindJSON(newModule); err != nil {
 		common.ResponseFailed(c, http.StatusBadRequest, err)
@@ -84,12 +78,6 @@ func (m *ModuleController) Update(c *gin.Context) {
 }
 
 func (m *ModuleController) Delete(c *gin.Context) {
-	// user := common.GetUser(c)
-	// if user == nil {
-	// 	common.ResponseFailed(c, http.StatusForbidden, nil)
-	// 	return
-	// }
-
 	if err := m.moduleService.Delete(c.Param("id")); err != nil {
 		common.ResponseFailed(c, http.StatusBadRequest, err)
 		return

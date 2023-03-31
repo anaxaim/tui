@@ -1,26 +1,17 @@
 package model
 
-const GITHUB = "github"
-const GITLAB = "gitlab"
+import "go.mongodb.org/mongo-driver/bson/primitive"
 
-type RegistryType struct {
-	repositoriesUrl string
-	repositoryUrl   string
-	fileContentUrl  string
-	readmeUrl       string
-}
+type RegistryType string
 
-var GitHubRegistryType = RegistryType{
-	repositoriesUrl: "https://api.github.com/user/repos?visibility=public&per_page=100",
-	repositoryUrl:   "https://api.github.com/repos/%s",
-}
+const (
+	GITHUB RegistryType = "github"
+	GITLAB RegistryType = "gitlab"
+)
 
-var GitLabRegistryType = RegistryType{
-	repositoriesUrl: "https://gitlab.com/api/v4/projects?visibility=public&owned=true",
-	repositoryUrl:   "https://gitlab.com/api/v4/projects/%s",
-}
-
-type RegistryDetails struct {
-	RegistryType string `json:"registryType,omitempty" bson:"registryType,omitempty"`
-	ProjectID    string `json:"projectId,omitempty" bson:"projectId,omitempty"`
+type RegistryContent struct {
+	ID           primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	ModuleID     primitive.ObjectID `json:"moduleId" bson:"moduleId"`
+	RegistryType RegistryType       `json:"registryType" bson:"registryType"`
+	Content      map[string]string  `json:"content" bson:"content"`
 }

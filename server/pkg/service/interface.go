@@ -22,3 +22,8 @@ type ModuleService interface {
 	Delete(id string) error
 	Validate(*model.TerraformModule) error
 }
+
+type RegistryService interface {
+	ImportModuleContentByID(id string) (*model.RegistryContent, error)
+	GetModuleContentByID(id string) (*model.RegistryContent, error)
+}
