@@ -11,14 +11,15 @@ import (
 
 func RequestInfoMiddleware(resolver utils.RequestInfoResolver) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		ri, err := resolver.NewRequestInfo(c.Request)
+		requestInfo, err := resolver.NewRequestInfo(c.Request)
 		if err != nil {
 			common.ResponseFailed(c, http.StatusBadRequest, err)
 			c.Abort()
+
 			return
 		}
 
-		common.SetRequestInfo(c, ri)
+		common.SetRequestInfo(c, requestInfo)
 
 		c.Next()
 	}

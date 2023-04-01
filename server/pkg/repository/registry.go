@@ -46,11 +46,13 @@ func (r *registryRepository) Get(id string) (*model.RegistryContent, error) {
 	}
 
 	registry := new(model.RegistryContent)
+
 	result := r.collection.FindOne(context.Background(), bson.M{"_id": oid})
 	if result.Err() != nil {
 		if errors.Is(result.Err(), mongo.ErrNoDocuments) {
 			return registry, mongo.ErrNoDocuments
 		}
+
 		return nil, result.Err()
 	}
 

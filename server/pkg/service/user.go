@@ -14,7 +14,11 @@ const (
 	MinPasswordLength = 6
 )
 
-var ErrUserAlreadyExists = errors.New("user has already exist")
+var (
+	ErrUserAlreadyExists   = errors.New("user has already exist")
+	ErrShortPassword       = errors.New("password length must be greater than MinPasswordLength")
+	ErrEmptyNameOrPassword = errors.New("name or password is empty")
+)
 
 type userService struct {
 	userRepository repository.UserRepository
@@ -35,6 +39,7 @@ func (u *userService) Create(user *model.User) (*model.User, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	if exists {
 		return nil, errors.Wrap(ErrUserAlreadyExists, fmt.Sprintf("name '%s'", user.Name))
 	}
@@ -43,6 +48,7 @@ func (u *userService) Create(user *model.User) (*model.User, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	user.Password = string(password)
 
 	return u.userRepository.Create(user)
@@ -66,6 +72,7 @@ func (u *userService) Update(name string, newUser *model.User) (*model.User, err
 		if err != nil {
 			return nil, err
 		}
+
 		newUser.Password = string(password)
 	}
 
@@ -85,18 +92,21 @@ func (u *userService) Validate(user *model.User) error {
 	if user == nil {
 		return errors.New("user is empty")
 	}
+
 	if user.Name == "" {
 		return errors.New("user name is empty")
 	}
+
 	if len(user.Password) < MinPasswordLength {
-		return fmt.Errorf("password length must great than %d", MinPasswordLength)
+		return fmt.Errorf("%w", ErrShortPassword)
 	}
+
 	return nil
 }
 
 func (u *userService) Auth(auser *model.AuthUser) (*model.User, error) {
 	if auser == nil || auser.Name == "" || auser.Password == "" {
-		return nil, fmt.Errorf("name or password is empty")
+		return nil, fmt.Errorf("%w", ErrEmptyNameOrPassword)
 	}
 
 	user, err := u.userRepository.GetUserByName(auser.Name)

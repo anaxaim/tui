@@ -1,6 +1,7 @@
 package common
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -8,6 +9,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
+
+var ErrInternalError = errors.New("internal error")
 
 // WrapFunc will wrap func(args ...interface{}) (interface{}, <error>) as a Gin HandlerFunc.
 func WrapFunc(f interface{}, args ...interface{}) gin.HandlerFunc {
@@ -30,7 +33,7 @@ func WrapFunc(f interface{}, args ...interface{}) gin.HandlerFunc {
 		defer func() {
 			if err := recover(); err != nil {
 				logrus.Warnf("panic: %v", err)
-				ResponseFailed(c, http.StatusInternalServerError, fmt.Errorf("%v", err))
+				ResponseFailed(c, http.StatusInternalServerError, fmt.Errorf("%w", ErrInternalError))
 			}
 		}()
 
@@ -42,6 +45,7 @@ func WrapFunc(f interface{}, args ...interface{}) gin.HandlerFunc {
 				return
 			}
 		}
+
 		c.JSON(http.StatusOK, outputs[0].Interface())
 	}
 }

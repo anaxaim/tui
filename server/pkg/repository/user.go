@@ -13,6 +13,8 @@ import (
 	"github.com/anaxaim/tui/server/pkg/model"
 )
 
+var ErrEmptyUserID = errors.New("empty user id")
+
 type userRepository struct {
 	collection *mongo.Collection
 }
@@ -32,11 +34,13 @@ func (r *userRepository) GetUserByID(id string) (*model.User, error) {
 	}
 
 	user := new(model.User)
+
 	result := r.collection.FindOne(context.Background(), bson.M{"_id": oid})
 	if result.Err() != nil {
 		if errors.Is(result.Err(), mongo.ErrNoDocuments) {
 			return user, mongo.ErrNoDocuments
 		}
+
 		return nil, result.Err()
 	}
 
@@ -55,6 +59,7 @@ func (r *userRepository) GetUserByAuthID(authType, authID string) (*model.User, 
 		if errors.Is(result.Err(), mongo.ErrNoDocuments) {
 			return nil, mongo.ErrNoDocuments
 		}
+
 		return nil, result.Err()
 	}
 
@@ -73,6 +78,7 @@ func (r *userRepository) GetUserByName(name string) (*model.User, error) {
 		if errors.Is(result.Err(), mongo.ErrNoDocuments) {
 			return user, mongo.ErrNoDocuments
 		}
+
 		return nil, result.Err()
 	}
 
@@ -120,6 +126,7 @@ func (r *userRepository) Create(user *model.User) (*model.User, error) {
 	oid, ok := result.InsertedID.(primitive.ObjectID)
 	if ok {
 		user.ID = oid
+
 		return user, nil
 	}
 
@@ -139,6 +146,7 @@ func (r *userRepository) Update(user *model.User) (*model.User, error) {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return user, mongo.ErrNoDocuments
 		}
+
 		return nil, err
 	}
 
@@ -155,7 +163,7 @@ func (r *userRepository) AddAuthInfo(authInfo *model.AuthInfo) error {
 	}
 
 	if authInfo.UserID == "" {
-		return fmt.Errorf("empty user id")
+		return fmt.Errorf("%w", ErrEmptyUserID)
 	}
 
 	result, err := r.collection.InsertOne(context.Background(), authInfo)
@@ -166,6 +174,7 @@ func (r *userRepository) AddAuthInfo(authInfo *model.AuthInfo) error {
 	oid, ok := result.InsertedID.(primitive.ObjectID)
 	if ok {
 		authInfo.ID = oid
+
 		return nil
 	}
 

@@ -33,11 +33,15 @@ func ResponseFailed(c *gin.Context, code int, err error) {
 	var msg string
 	if err != nil {
 		msg = err.Error()
+
 		var url string
+
 		if c.Request != nil {
 			url = c.Request.URL.String()
 		}
+
 		logrus.Warnf("url: %s, error: %v", url, msg)
 	}
+
 	NewResponse(c, code, nil, msg)
 }

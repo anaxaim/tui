@@ -14,6 +14,8 @@ import (
 	"github.com/anaxaim/tui/server/pkg/config"
 )
 
+var ErrFailedCloseMigration = errors.New("failed during close migration")
+
 type MongoDB struct {
 	*mongo.Client
 	DBName string
@@ -35,6 +37,7 @@ func NewMongoClient(conf *config.DBConfig) (*MongoDB, error) {
 	}
 
 	newUserURI := fmt.Sprintf("mongodb://%s:%s@%s/%s", conf.User, conf.Password, net.JoinHostPort(mongoHost, conf.Port), conf.Database)
+
 	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(newUserURI))
 	if err != nil {
 		return &MongoDB{}, err
@@ -56,7 +59,7 @@ func CreateDBUser(migrations string, uri string) error {
 
 	sourceErr, databaseErr := m.Close()
 	if sourceErr != nil || databaseErr != nil {
-		return fmt.Errorf("failed during close migration")
+		return fmt.Errorf("%w", ErrFailedCloseMigration)
 	}
 
 	return nil

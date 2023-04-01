@@ -35,6 +35,7 @@ func (r *RegistryController) Get(c *gin.Context) {
 		common.ResponseFailed(c, http.StatusBadRequest, err)
 		return
 	}
+
 	common.ResponseSuccess(c, registry)
 }
 

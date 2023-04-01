@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"net/url"
 	"strings"
 	"time"
@@ -9,6 +10,8 @@ import (
 	"github.com/anaxaim/tui/server/pkg/model"
 	"github.com/anaxaim/tui/server/pkg/repository"
 )
+
+var ErrUserIsEmpty = errors.New("user is empty")
 
 type moduleService struct {
 	moduleRepository repository.ModuleRepository
@@ -31,7 +34,9 @@ func (m *moduleService) Create(module *model.TerraformModule) (*model.TerraformM
 	}
 
 	domain := parsedURL.Hostname()
+
 	path := strings.TrimLeft(parsedURL.Path, "/")
+
 	if strings.Contains(domain, string(model.GITHUB)) {
 		module.RegistryDetails.RegistryType = model.GITHUB
 		module.RegistryDetails.ProjectID = path
@@ -78,7 +83,7 @@ func (m *moduleService) Delete(id string) error {
 
 func (m *moduleService) Validate(module *model.TerraformModule) error {
 	if module == nil {
-		return errors.New("user is empty")
+		return fmt.Errorf("%w", ErrUserIsEmpty)
 	}
 
 	return nil

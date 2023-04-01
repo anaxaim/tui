@@ -16,13 +16,16 @@ var hostname, _ = os.Hostname()
 func LogMiddleware(logger *logrus.Logger, pathPrefix ...string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		path := c.Request.URL.Path
+
 		logged := len(pathPrefix) == 0
+
 		for _, prefix := range pathPrefix {
 			if strings.HasPrefix(path, prefix) {
 				logged = true
 				break
 			}
 		}
+
 		if !logged {
 			return
 		}

@@ -28,6 +28,7 @@ func (u *UserController) List(c *gin.Context) {
 		common.ResponseFailed(c, http.StatusBadRequest, err)
 		return
 	}
+
 	common.ResponseSuccess(c, users)
 }
 
@@ -37,6 +38,7 @@ func (u *UserController) Get(c *gin.Context) {
 		common.ResponseFailed(c, http.StatusBadRequest, err)
 		return
 	}
+
 	common.ResponseSuccess(c, user)
 }
 
@@ -58,7 +60,9 @@ func (u *UserController) Create(c *gin.Context) {
 			common.ResponseFailed(c, http.StatusConflict, err)
 			return
 		}
+
 		common.ResponseFailed(c, http.StatusInternalServerError, err)
+
 		return
 	}
 
@@ -71,6 +75,7 @@ func (u *UserController) Update(c *gin.Context) {
 		common.ResponseFailed(c, http.StatusBadRequest, err)
 		return
 	}
+
 	logrus.Infof("get update user: %#v", newUser)
 
 	user, err := u.userService.Update(c.Param("name"), newUser)

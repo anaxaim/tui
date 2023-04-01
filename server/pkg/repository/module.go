@@ -31,11 +31,13 @@ func (r *moduleRepository) GetModuleByID(id string) (*model.TerraformModule, err
 	}
 
 	module := new(model.TerraformModule)
+
 	result := r.collection.FindOne(context.Background(), bson.M{"_id": oid})
 	if result.Err() != nil {
 		if errors.Is(result.Err(), mongo.ErrNoDocuments) {
 			return module, mongo.ErrNoDocuments
 		}
+
 		return nil, result.Err()
 	}
 
@@ -70,6 +72,7 @@ func (r *moduleRepository) Create(module *model.TerraformModule) (*model.Terrafo
 	oid, ok := result.InsertedID.(primitive.ObjectID)
 	if ok {
 		module.ID = oid
+
 		return module, nil
 	}
 
@@ -83,6 +86,7 @@ func (r *moduleRepository) Update(module *model.TerraformModule) (*model.Terrafo
 	}
 
 	var updateModuleObj bson.M
+
 	err = bson.Unmarshal(moduleBytes, &updateModuleObj)
 	if err != nil {
 		return nil, err
@@ -99,6 +103,7 @@ func (r *moduleRepository) Update(module *model.TerraformModule) (*model.Terrafo
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return module, mongo.ErrNoDocuments
 		}
+
 		return nil, err
 	}
 

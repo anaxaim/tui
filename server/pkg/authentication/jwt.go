@@ -1,6 +1,7 @@
 package authentication
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -12,6 +13,11 @@ import (
 
 const (
 	Issuer = "tui.io"
+)
+
+var (
+	ErrEmptyUser    = errors.New("empty user")
+	ErrInvalidToken = errors.New("invalid token")
 )
 
 type CustomClaims struct {
@@ -36,8 +42,9 @@ func NewJWTService(secret string) *JWTService {
 
 func (s *JWTService) CreateToken(user *model.User) (string, error) {
 	if user == nil {
-		return "", fmt.Errorf("empty user")
+		return "", fmt.Errorf("%w", ErrEmptyUser)
 	}
+
 	now := time.Now()
 	token := jwt.NewWithClaims(
 		jwt.SigningMethodHS256,
@@ -66,7 +73,7 @@ func (s *JWTService) ParseToken(tokenString string) (*model.User, error) {
 
 	claims, ok := token.Claims.(*CustomClaims)
 	if !ok || !token.Valid {
-		return nil, fmt.Errorf("invaild token")
+		return nil, fmt.Errorf("%w", ErrInvalidToken)
 	}
 
 	id, err := primitive.ObjectIDFromHex(claims.ID)

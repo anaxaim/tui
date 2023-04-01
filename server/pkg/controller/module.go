@@ -27,6 +27,7 @@ func (m *ModuleController) List(c *gin.Context) {
 		common.ResponseFailed(c, http.StatusBadRequest, err)
 		return
 	}
+
 	common.ResponseSuccess(c, modules)
 }
 
@@ -36,6 +37,7 @@ func (m *ModuleController) Get(c *gin.Context) {
 		common.ResponseFailed(c, http.StatusBadRequest, err)
 		return
 	}
+
 	common.ResponseSuccess(c, module)
 }
 
@@ -66,6 +68,7 @@ func (m *ModuleController) Update(c *gin.Context) {
 		common.ResponseFailed(c, http.StatusBadRequest, err)
 		return
 	}
+
 	logrus.Infof("get update module: %#v", newModule)
 
 	module, err := m.moduleService.Update(c.Param("id"), newModule)

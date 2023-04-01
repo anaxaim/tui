@@ -15,7 +15,7 @@ fmt: ## golang format
 	gofmt -s -w $(GOFILES)
 
 install-golangci-lint:
-	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.51.2
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.52.2
 
 lint: fmt install-golangci-lint ## run golangci lint
 	golangci-lint run

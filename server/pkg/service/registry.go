@@ -1,17 +1,9 @@
 package service
 
 import (
-	"io"
-	"path/filepath"
-	"strings"
-
-	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/plumbing"
-	"github.com/go-git/go-git/v5/plumbing/object"
-	"github.com/go-git/go-git/v5/storage/memory"
-
 	"github.com/anaxaim/tui/server/pkg/model"
 	"github.com/anaxaim/tui/server/pkg/repository"
+	"github.com/anaxaim/tui/server/pkg/utils"
 )
 
 type registryService struct {
@@ -36,52 +28,17 @@ func (r *registryService) ImportModuleContentByID(id string) (*model.RegistryCon
 	registry.RegistryType = module.RegistryDetails.RegistryType
 	registry.ModuleID = module.ID
 
-	// Clone git repository into memory
-	memStorage := memory.NewStorage()
-	repo, err := git.Clone(memStorage, nil, &git.CloneOptions{
-		URL:           module.GitRepositoryURL,
-		ReferenceName: plumbing.NewBranchReferenceName("master"),
-		SingleBranch:  true,
-	})
+	repo, err := utils.CloneGitRepo(module)
 	if err != nil {
 		return nil, err
 	}
 
-	ref, err := repo.Head()
+	tree, err := utils.GetCommitTree(repo)
 	if err != nil {
 		return nil, err
 	}
 
-	// Get the commit object
-	commit, err := repo.CommitObject(ref.Hash())
-	if err != nil {
-		return nil, err
-	}
-
-	tree, err := commit.Tree()
-	if err != nil {
-		return nil, err
-	}
-
-	content := make(map[string]string)
-	err = tree.Files().ForEach(func(f *object.File) error {
-		if !strings.HasPrefix(f.Name, ".terraform") && filepath.Ext(f.Name) == ".tf" {
-			reader, err := f.Reader()
-			if err != nil {
-				return err
-			}
-
-			bytes, err := io.ReadAll(reader)
-			if err != nil {
-				return err
-			}
-
-			content[f.Name] = string(bytes)
-		}
-
-		return nil
-	})
-
+	content, err := utils.GetModuleContent(tree)
 	if err != nil {
 		return nil, err
 	}

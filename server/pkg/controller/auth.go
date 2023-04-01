@@ -31,10 +31,7 @@ func (ac *AuthController) Login(c *gin.Context) {
 		return
 	}
 
-	var user *model.User
-	var err error
-
-	user, err = ac.userService.Auth(auser)
+	user, err := ac.userService.Auth(auser)
 	if err != nil {
 		common.ResponseFailed(c, http.StatusUnauthorized, err)
 		return
@@ -51,6 +48,7 @@ func (ac *AuthController) Login(c *gin.Context) {
 		common.ResponseFailed(c, http.StatusInternalServerError, err)
 		return
 	}
+
 	if auser.SetCookie {
 		c.SetCookie(common.CookieTokenName, token, 3600*24, "/", "", true, true)
 		c.SetCookie(common.CookieLoginUser, string(userJSON), 3600*24, "/", "", true, false)

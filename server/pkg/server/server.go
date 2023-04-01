@@ -47,8 +47,8 @@ func New(conf *config.Config, logger *logrus.Logger) (*Server, error) {
 
 	gin.SetMode(conf.Server.ENV)
 
-	e := gin.New()
-	e.Use(
+	engine := gin.New()
+	engine.Use(
 		gin.Recovery(),
 		middleware.CORSMiddleware(),
 		middleware.RequestInfoMiddleware(&utils.RequestInfoFactory{APIPrefixes: utils.NewString("api")}),
@@ -57,7 +57,7 @@ func New(conf *config.Config, logger *logrus.Logger) (*Server, error) {
 	)
 
 	return &Server{
-		engine:      e,
+		engine:      engine,
 		config:      conf,
 		logger:      logger,
 		repository:  repo,
@@ -95,7 +95,7 @@ func (s *Server) Run() error {
 	}
 
 	go func() {
-		if err := server.ListenAndServe(); err != http.ErrServerClosed {
+		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 			s.logger.Fatalf("Failed to start server, %v", err)
 		}
 	}()
@@ -127,21 +127,25 @@ func (s *Server) initRouter() {
 	root.GET("/version", common.WrapFunc(version.Get))
 
 	api := root.Group("/api/v1")
+
 	controllers := make([]string, 0, len(s.controllers))
 	for _, router := range s.controllers {
 		router.RegisterRoute(api)
 		controllers = append(controllers, router.Name())
 	}
+
 	logrus.Infof("server enabled controllers: %v", controllers)
 }
 
 func (s *Server) getRoutes() []string {
 	paths := utils.NewString()
+
 	for _, r := range s.engine.Routes() {
 		if r.Path != "" {
 			paths.Insert(r.Path)
 		}
 	}
+
 	return paths.Slice()
 }
 

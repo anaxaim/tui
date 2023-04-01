@@ -11,6 +11,7 @@ type String map[string]Empty
 func NewString(items ...string) String {
 	ss := String{}
 	ss.Insert(items...)
+
 	return ss
 }
 
@@ -19,6 +20,7 @@ func (s String) Insert(items ...string) String {
 	for _, item := range items {
 		s[item] = Empty{}
 	}
+
 	return s
 }
 
@@ -33,6 +35,8 @@ func (s String) Slice() []string {
 	for item := range s {
 		slice = append(slice, item)
 	}
+
 	sort.Strings(slice)
+
 	return slice
 }

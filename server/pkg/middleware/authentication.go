@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -10,6 +11,11 @@ import (
 	"github.com/anaxaim/tui/server/pkg/authentication"
 	"github.com/anaxaim/tui/server/pkg/common"
 	"github.com/anaxaim/tui/server/pkg/repository"
+)
+
+var (
+	ErrFailedToGetUser            = errors.New("failed to get user")
+	ErrInvalidAuthorizationHeader = errors.New("authorization header invalid")
 )
 
 func AuthenticationMiddleware(jwtService *authentication.JWTService, userRepo repository.UserRepository) gin.HandlerFunc {
@@ -23,10 +29,12 @@ func AuthenticationMiddleware(jwtService *authentication.JWTService, userRepo re
 		if user != nil {
 			user, err := userRepo.GetUserByName(user.Name)
 			if err != nil {
-				common.ResponseFailed(c, http.StatusInternalServerError, fmt.Errorf("failed to get user"))
+				common.ResponseFailed(c, http.StatusInternalServerError, fmt.Errorf("%w", ErrFailedToGetUser))
 				c.Abort()
+
 				return
 			}
+
 			common.SetUser(c, user)
 		}
 
@@ -46,7 +54,7 @@ func getTokenFromAuthorizationHeader(c *gin.Context) (string, error) {
 
 	token := strings.Fields(auth)
 	if len(token) != 2 || strings.ToLower(token[0]) != "bearer" || token[1] == "" {
-		return "", fmt.Errorf("authorization header invaild")
+		return "", fmt.Errorf("%w", ErrInvalidAuthorizationHeader)
 	}
 
 	return token[1], nil

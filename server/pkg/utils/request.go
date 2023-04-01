@@ -47,26 +47,14 @@ func (r *RequestInfoFactory) NewRequestInfo(req *http.Request) (*RequestInfo, er
 		// return a non-resource request
 		return &requestInfo, nil
 	}
+
 	requestInfo.APIPrefix = currentParts[0]
 	currentParts = currentParts[1:]
 
 	requestInfo.APIVersion = currentParts[0]
 	currentParts = currentParts[1:]
 
-	switch req.Method {
-	case http.MethodPost:
-		requestInfo.Verb = CreateOperation
-	case http.MethodGet, http.MethodHead:
-		requestInfo.Verb = GetOperation
-	case http.MethodPut:
-		requestInfo.Verb = UpdateOperation
-	case http.MethodPatch:
-		requestInfo.Verb = PatchOperation
-	case http.MethodDelete:
-		requestInfo.Verb = DeleteOperation
-	default:
-		requestInfo.Verb = ""
-	}
+	requestInfo.Verb = determineVerb(req.Method)
 
 	requestInfo.Parts = currentParts
 	requestInfo.Name = requestInfo.Parts[0]
@@ -78,10 +66,28 @@ func (r *RequestInfoFactory) NewRequestInfo(req *http.Request) (*RequestInfo, er
 	return &requestInfo, nil
 }
 
+func determineVerb(method string) string {
+	switch method {
+	case http.MethodPost:
+		return CreateOperation
+	case http.MethodGet, http.MethodHead:
+		return GetOperation
+	case http.MethodPut:
+		return UpdateOperation
+	case http.MethodPatch:
+		return PatchOperation
+	case http.MethodDelete:
+		return DeleteOperation
+	default:
+		return ""
+	}
+}
+
 func splitPath(path string) []string {
 	path = strings.Trim(path, "/")
 	if path == "" {
 		return []string{}
 	}
+
 	return strings.Split(path, "/")
 }
