@@ -1,20 +1,24 @@
 <template>
   <div v-if="route.path !== '/login'">
-    <Header/>
-    <div class="menu"><Menu/></div>
+    <Header />
+    <div class="menu">
+      <Menu />
+    </div>
   </div>
-  <div class="menu__items"><RouterView/></div>
+  <div class="menu__items">
+    <RouterView />
+  </div>
 </template>
 
 <script setup>
 /*
   imports
 */
-  import Header from '@/components/layout/Header.vue';
-  import Menu from '@/components/layout/Menu.vue';
-  import { RouterView, useRoute } from 'vue-router'
+import { RouterView, useRoute } from 'vue-router';
+import Header from '@/components/layout/Header.vue';
+import Menu from '@/components/layout/Menu.vue';
 
-  const route = useRoute();
+const route = useRoute();
 </script>
 
 <style lang="scss">

@@ -3,7 +3,12 @@
     <div class="modules">
       <PageHeader title="Stacks">
         <template #icon>
-          <AllApplication style="margin-left: 1rem;" theme="outline" size="36" fill="#333" />
+          <AllApplication
+            style="margin-left: 1rem;"
+            theme="outline"
+            size="36"
+            fill="#333"
+          />
         </template>
       </PageHeader>
     </div>
@@ -14,8 +19,8 @@
 /*
   imports
 */
-  import PageHeader from '@/components/PageHeader.vue'
-  import { AllApplication } from '@icon-park/vue-next'
+import { AllApplication } from '@icon-park/vue-next';
+import PageHeader from '@/components/PageHeader.vue';
 </script>
 
 <style lang="scss">

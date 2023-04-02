@@ -4,7 +4,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "eslint --ext .js,.vue src",
+    "lint:fix": "eslint --ext .js,.vue src --fix"
   },
   "dependencies": {
     "@icon-park/vue-next": "^1.4.2",
@@ -18,6 +20,11 @@
     "unplugin-auto-import": "^0.15.2",
     "unplugin-vue-components": "^0.24.1",
     "vite": "^4.1.4",
-    "sass": "^1.59.3"
+    "sass": "^1.59.3",
+    "eslint": "^8.37.0",
+    "eslint-plugin-vue": "^9.10.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-import-resolver-alias": "^1.1.2"
   }
 }

@@ -1,6 +1,14 @@
 <template>
-  <el-menu text-color="#000" active-text-color="#10b981" router>
-    <el-menu-item :index="menu.name" v-for="menu in menuList" :key="menu.title">
+  <el-menu
+    text-color="#000"
+    active-text-color="#10b981"
+    router
+  >
+    <el-menu-item
+      v-for="menu in menuList"
+      :key="menu.title"
+      :index="menu.name"
+    >
       <el-icon size="20">
         <component :is="menu.icon" />
       </el-icon>
@@ -13,25 +21,24 @@
 /*
   imports
 */
-  import { CloudStorage, AllApplication } from '@icon-park/vue-next';
+import { CloudStorage, AllApplication } from '@icon-park/vue-next';
 
 /*
   menu
 */
-  const menuList = [
-    {
-      name: '/modules',
-      icon: CloudStorage,
-      title: 'Modules',
-    },
-    {
-      name: '/stacks',
-      icon: AllApplication,
-      title: 'Stacks'
-    }
-  ];
+const menuList = [
+  {
+    name: '/modules',
+    icon: CloudStorage,
+    title: 'Modules',
+  },
+  {
+    name: '/stacks',
+    icon: AllApplication,
+    title: 'Stacks',
+  },
+];
 </script>
-
 
 <style lang="scss" scoped>
   .el-menu {
