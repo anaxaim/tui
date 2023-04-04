@@ -2,6 +2,7 @@ package utils
 
 import (
 	"io"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -61,4 +62,19 @@ func GetModuleContent(tree *object.Tree) (map[string]string, error) {
 	})
 
 	return content, err
+}
+
+func ExtractRegistryFilesToDir(files map[string]string, destDir string) error {
+	if err := os.MkdirAll(destDir, os.ModePerm); err != nil {
+		return err
+	}
+
+	for fileName, fileContent := range files {
+		destPath := filepath.Join(destDir, fileName)
+		if err := os.WriteFile(destPath, []byte(fileContent), 0o600); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

@@ -11,9 +11,7 @@ import (
 	"github.com/anaxaim/tui/server/pkg/server"
 )
 
-var ( //nolint: gofumpt
-	appConfig = flag.String("config", "config/app.yaml", "application config path")
-)
+var appConfig = flag.String("config", "config/app.yaml", "application config path")
 
 func main() {
 	logger := logrus.StandardLogger()

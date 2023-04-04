@@ -16,7 +16,7 @@ type TerraformModule struct {
 	GitRepositoryURL string             `json:"gitRepositoryUrl" bson:"gitRepositoryUrl"`
 	GitBranch        string             `json:"gitBranch,omitempty" bson:"gitBranch,omitempty"`
 	Directory        string             `json:"directory,omitempty" bson:"directory,omitempty"`
-	Variables        []Variable         `json:"variables,omitempty" bson:"variables,omitempty"`
+	Variables        Variables          `json:"variables,omitempty" bson:"variables,omitempty"`
 	Outputs          []Output           `json:"outputs,omitempty" bson:"outputs,omitempty"`
 	Name             string             `json:"name" bson:"name"`
 	Description      string             `json:"description,omitempty" bson:"description,omitempty"`
@@ -51,8 +51,12 @@ type TerraformImage struct {
 }
 
 type RegistryDetails struct {
-	RegistryType RegistryType `json:"registryType,omitempty" bson:"registryType,omitempty"`
-	ProjectID    string       `json:"projectId,omitempty" bson:"projectId,omitempty"`
+	RegistryType RegistryType       `json:"registryType,omitempty" bson:"registryType,omitempty"`
+	ProjectID    string             `json:"projectId,omitempty" bson:"projectId,omitempty"`
+	RegistryID   primitive.ObjectID `json:"registryId,omitempty" bson:"registryId,omitempty"`
 }
 
-type TerraformModules []TerraformModule
+type (
+	TerraformModules []TerraformModule
+	Variables        []Variable
+)

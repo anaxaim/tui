@@ -11,13 +11,23 @@ clean: ## clean bin and go mod
 	go mod tidy
 	go mod vendor
 
-fmt: ## golang format
-	gofmt -s -w $(GOFILES)
+# CHECKS
+vet:
+	go vet ./...
+
+fmt:
+	go fmt ./...
+
+gofumpt:
+	go install mvdan.cc/gofumpt@v0.4.0
+	gofumpt -l -w .
+
+checks: vet fmt gofumpt
 
 install-golangci-lint:
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.52.2
 
-lint: fmt install-golangci-lint ## run golangci lint
+lint: install-golangci-lint ## run golangci lint
 	golangci-lint run
 
 run: ## run server

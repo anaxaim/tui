@@ -1,6 +1,10 @@
 package service
 
 import (
+	"fmt"
+	"os"
+	"path/filepath"
+
 	"github.com/anaxaim/tui/server/pkg/model"
 	"github.com/anaxaim/tui/server/pkg/repository"
 	"github.com/anaxaim/tui/server/pkg/utils"
@@ -45,11 +49,31 @@ func (r *registryService) ImportModuleContentByID(id string) (*model.RegistryCon
 
 	registry.Content = content
 
+	tmpModuleDir := filepath.Join(os.TempDir(), fmt.Sprintf("module_%s", module.ID))
+	defer os.RemoveAll(tmpModuleDir)
+
+	err = utils.ExtractRegistryFilesToDir(content, tmpModuleDir)
+	if err != nil {
+		return nil, err
+	}
+
+	tfModule, err := utils.LoadTFModule(tmpModuleDir)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(module.Variables) > 0 {
+		tfModule.Variables = utils.MergeTfVariables(module.Variables, tfModule.Variables)
+	}
+
+	registry.ParsedContent = tfModule
+
 	registryInfo, err := r.registryRepository.Save(registry)
 	if err != nil {
 		module.Status = model.ERROR
 	} else {
 		module.Status = model.RUNNING
+		module.RegistryDetails.RegistryID = registryInfo.ID
 	}
 
 	_, err = r.moduleRepository.Update(module)
