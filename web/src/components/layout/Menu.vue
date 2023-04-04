@@ -1,14 +1,6 @@
 <template>
-  <el-menu
-    text-color="#000"
-    active-text-color="#10b981"
-    router
-  >
-    <el-menu-item
-      v-for="menu in menuList"
-      :key="menu.title"
-      :index="menu.name"
-    >
+  <el-menu text-color="#000" active-text-color="#10b981" router>
+    <el-menu-item v-for="menu in menuList" :key="menu.title" :index="menu.name">
       <el-icon size="20">
         <component :is="menu.icon" />
       </el-icon>

@@ -2,121 +2,54 @@
   <div class="content">
     <div class="main__form">
       <div class="icon__form">
-        <img
-          src="@/assets/images/tui.png"
-          class="icon"
-          alt=""
-        >
-        <h1 class="icon__title">
-          Tui
-        </h1>
+        <img src="@/assets/images/tui.png" class="icon" alt="" />
+        <h1 class="icon__title">Tui</h1>
       </div>
 
       <div v-if="showLogin">
-        <el-form
-          ref="loginFormRef"
-          :model="loginUser"
-          size="large"
-          :rules="rules"
-          show-message
-        >
+        <el-form ref="loginFormRef" :model="loginUser" size="large" :rules="rules" show-message>
           <el-form-item prop="name">
-            <el-input
-              v-model="loginUser.name"
-              placeholder="tui"
-            >
-              <template #prefix>
-                <User />
-              </template>
+            <el-input v-model="loginUser.name" placeholder="tui">
+              <template #prefix><User /></template>
             </el-input>
           </el-form-item>
 
           <el-form-item prop="password">
-            <el-input
-              v-model="loginUser.password"
-              type="password"
-              placeholder="tui312"
-              show-password
-            >
-              <template #prefix>
-                <Lock />
-              </template>
+            <el-input v-model="loginUser.password" type="password" placeholder="tui312" show-password>
+              <template #prefix><Lock /></template>
             </el-input>
           </el-form-item>
         </el-form>
 
-        <el-button
-          class="submit_form_btn"
-          type="success"
-          size="large"
-          @click="login(loginFormRef)"
-        >
+        <el-button class="submit_form_btn" type="success" size="large" @click="login(loginFormRef)">
           SIGN IN
         </el-button>
 
         <div class="change_form_btn">
-          <el-button
-            link
-            @click="showLogin=false"
-          >
+          <el-button link @click="showLogin=false">
             SIGN UP
           </el-button>
         </div>
       </div>
 
       <div v-if="showLogin === false">
-        <el-form
-          ref="registrationFormRef"
-          :model="registrationUser"
-          label-position="top"
-          :rules="rules"
-          label-width="auto"
-          size="large"
-        >
-          <el-form-item
-            label="Username"
-            prop="name"
-          >
-            <el-input
-              v-model="registrationUser.name"
-              placeholder="username"
-              size="large"
-            />
+        <el-form ref="registrationFormRef" :model="registrationUser" label-position="top" :rules="rules" label-width="auto" size="large">
+          <el-form-item label="Username" prop="name">
+            <el-input v-model="registrationUser.name" placeholder="username" size="large" />
           </el-form-item>
-          <el-form-item
-            label="Email"
-            prop="email"
-          >
-            <el-input
-              v-model="registrationUser.email"
-              placeholder="email"
-            />
+          <el-form-item label="Email" prop="email">
+            <el-input v-model="registrationUser.email" placeholder="email" />
           </el-form-item>
-          <el-form-item
-            label="Password"
-            prop="password"
-          >
-            <el-input
-              v-model="registrationUser.password"
-              placeholder="password"
-              minlength="6"
-            />
+          <el-form-item label="Password" prop="password">
+            <el-input v-model="registrationUser.password" placeholder="password" minlength="6" />
           </el-form-item>
         </el-form>
 
-        <el-button
-          class="submit_form_btn"
-          type="success"
-          size="large"
-          @click="register(registrationFormRef)"
-        >
+        <el-button class="submit_form_btn" type="success" size="large" @click="register(registrationFormRef)">
           SIGN UP
         </el-button>
         <div class="change_form_btn">
-          <el-button
-            link
-            @click="showLogin=true"
-          >
+          <el-button link @click="showLogin=true">
             SIGN IN
           </el-button>
         </div>

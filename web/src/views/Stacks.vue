@@ -3,12 +3,7 @@
     <div class="modules">
       <PageHeader title="Stacks">
         <template #icon>
-          <AllApplication
-            style="margin-left: 1rem;"
-            theme="outline"
-            size="36"
-            fill="#333"
-          />
+          <AllApplication style="margin-left: 1rem;" theme="outline" size="36" fill="#333" />
         </template>
       </PageHeader>
     </div>

@@ -67,7 +67,6 @@
         </span>
       </template>
     </el-dialog>
-
     <el-dialog v-model="showUpdate" top="5vh" title="Update Module" width="60%">
       <el-form ref="updateFormRef" :model="updatedModule" label-position="top" label-width="auto">
         <div class="form_content">
@@ -155,8 +154,39 @@
           </div>
         </template>
 
-        <el-table :data="filtration" height="360">
-          <el-table-column prop="name" label="Name" sortable min-width="50px">
+        <el-table :data="tableData" :border="true" :header-row-style="{color:'#00000F'}" :header-cell-style="{'background-color':'#f6f6f5'}">
+          <el-table-column prop="Operations" label="Operations" min-width="65px">
+            <template #default="scope">
+              <el-button class="operation_icon" type="success" size="small" circle @click="importRegistry(scope.row.id)" :icon="Download" />
+              <el-button class="operation_icon" type="warning" size="small" circle @click="editModule(scope.row)" :icon="Edit" />
+              <el-popover :visible="showDelete === scope.$index" placement="top-start">
+                <template #reference>
+                  <el-button size="small" type="danger" circle @click="showDelete = scope.$index" :icon="Delete" />
+                </template>
+                <div style="margin-bottom: 0.5rem;">Delete this module?</div>
+                <span style="margin-left: 0.5rem;">
+                  <el-button size="small" text @click="showDelete = -1">no</el-button>
+                  <el-button size="small" type="danger" @click="deleteModule(scope.row)">yes</el-button>
+                </span>
+              </el-popover>
+              <el-button class="operation_icon" size="small" circle @click="fetchLogs(scope.row)" :icon="Log" />
+              <el-drawer v-model="drawer" :append-to-body="true" :with-header="false" size="40%">
+                <div>
+                  <h3>Provider:</h3>
+                  <pre>{{ logs.provider_configs }}</pre>
+                  <h3>Variables:</h3>
+                  <pre>{{ logs.variables }}</pre>
+                  <h3>Resources:</h3>
+                  <pre>{{ logs.managed_resources }}</pre>
+                  <h3>DataSources:</h3>
+                  <pre>{{ logs.data_resources }}</pre>
+                  <h3>Outputs:</h3>
+                  <pre>{{ logs.outputs }}</pre>
+                </div>
+              </el-drawer>
+            </template>
+          </el-table-column>
+          <el-table-column prop="name" label="Name" sortable min-width="70px">
             <template #default="{row}">
               <el-popover placement="top-end" :width="200" :disabled="!row.description">
                 <template #reference>
@@ -166,7 +196,7 @@
               </el-popover>
             </template>
           </el-table-column>
-          <el-table-column prop="registryDetails.projectId" label="Registry" min-width="150px">
+          <el-table-column prop="registryDetails.projectId" label="Registry" min-width="140px">
             <template #default="{row}">
               <span>
                 <el-button link>
@@ -180,42 +210,9 @@
             </template>
           </el-table-column>
           <el-table-column prop="mainProvider" label="Provider" />
-          <el-table-column prop="createdAtString" label="Created" sortable min-width="80px" />
-          <el-table-column prop="updatedAtString" label="Updated" sortable min-width="80px" />
-          <el-table-column prop="Operations" label="Operations" min-width="80px">
-            <template #default="scope">
-              <el-button class="operation_icon" type="success" size="small" circle @click="importRegistry(scope.row.id)" :icon="PlayOne" />
-              <el-button class="operation_icon" type="warning" size="small" circle @click="editModule(scope.row)" :icon="Edit" />
-              <el-popover :visible="showDelete === scope.$index" placement="top-start">
-                <template #reference>
-                  <el-button size="small" type="danger" circle @click="showDelete = scope.$index" :icon="Delete" />
-                </template>
-                <div style="margin-bottom: 0.5rem;">Delete this module?</div>
-                <span style="margin-left: 0.5rem;">
-                  <el-button size="small" text @click="showDelete = -1">no</el-button>
-                  <el-button size="small" type="danger" @click="deleteModule(scope.row)">yes</el-button>
-                </span>
-              </el-popover>
-              <el-drawer v-model="drawer" :append-to-body="true" :with-header="false" size="40%">
-                <div>
-                  <h3>Variables:</h3>
-                  <pre>{{ logs.variables }}</pre>
-                  <h3>Outputs:</h3>
-                  <pre>{{ logs.outputs }}</pre>
-                  <h3>Required Providers:</h3>
-                  <pre>{{ logs.required_providers }}</pre>
-                  <h3>Provider Configs:</h3>
-                  <pre>{{ logs.provider_configs }}</pre>
-                  <h3>Managed Resources:</h3>
-                  <pre>{{ logs.managed_resources }}</pre>
-                  <h3>Data Resources:</h3>
-                  <pre>{{ logs.data_resources }}</pre>
-                </div>
-              </el-drawer>
-              <el-button class="operation_icon" size="small" circle @click="fetchLogs(scope.row)" :icon="Log" />
-            </template>
-          </el-table-column>
-          <el-table-column prop="status" label="Status" min-width="90px">
+          <el-table-column prop="createdAtString" label="Created" sortable min-width="65px" />
+          <el-table-column prop="updatedAtString" label="Updated" sortable min-width="65px" />
+          <el-table-column prop="status" label="Status" min-width="40px">
             <template #default="scope">
               <el-tag :type="getStatusType(scope.row.status)"> {{ scope.row.status }} </el-tag>
             </template>
@@ -231,7 +228,7 @@
   imports
 */
 import {
-  CloudStorage, Delete, Edit, Log, PlayOne, Search, GithubOne, Gitlab, Plus, Minus,
+  CloudStorage, Delete, Edit, Log, Download, Search, GithubOne, Gitlab, Plus, Minus,
 } from '@icon-park/vue-next';
 
 import {
@@ -256,10 +253,10 @@ onMounted(
 );
 
 /*
-  filtration and search
+  search
 */
 const search = ref('');
-const filtration = computed(() => modules.value.filter(
+const tableData = computed(() => modules.value.filter(
   (data) => !search.value || data.name.toLowerCase().includes(search.value.toLowerCase()),
 ));
 
@@ -349,7 +346,6 @@ const updatedModule = ref({
 
 const editModule = (module) => {
   showUpdate.value = true;
-  console.log(module);
   updatedModule.value = { ...module };
   if (!updatedModule.value.variables) {
     updatedModule.value.variables = [];
@@ -361,7 +357,6 @@ const updateModule = () => {
   if (!form) {
     return;
   }
-
   form.validate((valid, err) => {
     if (valid) {
       request
@@ -465,21 +460,15 @@ const getStatusType = (status) => {
 /*
   Logs
 */
-const logs = ref({
-  variables: null,
-  outputs: null,
-  required_providers: null,
-  provider_configs: null,
-  managed_resources: null,
-  data_resources: null,
-});
+const logs = ref({});
 
 const drawer = ref(false);
-const showLogs = ref(-1);
 
 const fetchLogs = (row) => {
   const index = modules.value.findIndex((v) => v.id === row.id);
-  if (modules.value[index].status !== 'RUNNING') {
+  const moduleInfo = modules.value[index];
+
+  if (moduleInfo.status !== 'RUNNING') {
     ElMessage({
       message: 'The module has not been imported yet. Please import the module before fetching logs.',
       type: 'warning',
@@ -487,23 +476,18 @@ const fetchLogs = (row) => {
     return;
   }
 
-  const id = modules.value[index].registryDetails.registryId;
-  showLogs.value = index;
+  const id = moduleInfo.registryDetails.registryId;
   logs.value = {
-    variables: null,
-    outputs: null,
-    required_providers: null,
     provider_configs: null,
+    variables: null,
     managed_resources: null,
     data_resources: null,
+    outputs: null,
   };
   request
     .get(`/api/v1/registry/${id}`)
     .then((response) => {
       const data = response.data.data.parsedContent;
-      delete data.path;
-      delete data.module_calls;
-
       logs.value = Object.fromEntries(Object.keys(logs.value).map((key) => {
         const obj = {};
         obj[key] = {};

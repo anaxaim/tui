@@ -1,28 +1,14 @@
 <template>
   <header class="header">
     <div class="header__left">
-      <img
-        src="@/assets/images/tui.png"
-        alt="Logo"
-        class="header__icon"
-      >
+      <img src="@/assets/images/tui.png" alt="Logo" class="header__icon" />
       <span class="header__title">Tui</span>
     </div>
     <div class="header__right">
-      <a
-        :href="githubInfo.project"
-        target="_blank"
-      >
-        <github-one
-          size="32"
-          :fill="['#333']"
-        />
+      <a :href="githubInfo.project" target="_blank">
+        <GithubOne size="32" :fill="['#333']" />
       </a>
-      <Logout
-        size="32"
-        class="header__logout"
-        @click="logout"
-      />
+      <Logout size="32" class="header__logout" @click="logout" />
     </div>
   </header>
 </template>

@@ -1,7 +1,7 @@
 <template>
   <div class="page_header">
     <div class="page_header_content">
-      <slot name="icon" />
+      <slot name="icon"></slot>
       <span class="page_header_text">{{ title }}</span>
     </div>
   </div>
