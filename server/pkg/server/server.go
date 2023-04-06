@@ -16,6 +16,7 @@ import (
 	"github.com/anaxaim/tui/server/pkg/authentication"
 	"github.com/anaxaim/tui/server/pkg/common"
 	"github.com/anaxaim/tui/server/pkg/config"
+	"github.com/anaxaim/tui/server/pkg/container"
 	"github.com/anaxaim/tui/server/pkg/controller"
 	"github.com/anaxaim/tui/server/pkg/database"
 	"github.com/anaxaim/tui/server/pkg/middleware"
@@ -37,10 +38,11 @@ func New(conf *config.Config, logger *logrus.Logger) (*Server, error) {
 	moduleService := service.NewModuleService(repo.Module())
 	registryService := service.NewRegistryService(repo.Registry(), repo.Module())
 	jwtService := authentication.NewJWTService(conf.Server.JWTSecret)
+	terraformService := container.NewTerraformService()
 
 	userController := controller.NewUserController(userService)
 	moduleController := controller.NewModuleController(moduleService)
-	registryController := controller.NewRegistryController(registryService)
+	registryController := controller.NewRegistryController(registryService, terraformService)
 	authController := controller.NewAuthController(userService, jwtService)
 
 	controllers := []controller.Controller{userController, moduleController, registryController, authController}

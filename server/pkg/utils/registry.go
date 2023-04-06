@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -73,6 +74,17 @@ func ExtractRegistryFilesToDir(files map[string]string, destDir string) error {
 		destPath := filepath.Join(destDir, fileName)
 		if err := os.WriteFile(destPath, []byte(fileContent), 0o600); err != nil {
 			return err
+		}
+	}
+
+	return nil
+}
+
+func WriteFiles(tempDir string, content map[string]string) error {
+	for fileName, fileContent := range content {
+		filePath := filepath.Join(tempDir, fileName)
+		if err := os.WriteFile(filePath, []byte(fileContent), 0o600); err != nil {
+			return fmt.Errorf("failed to write file %s: %w", fileName, err)
 		}
 	}
 

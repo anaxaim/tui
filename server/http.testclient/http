@@ -70,7 +70,13 @@ PUT {{host}}/api/v1/modules/6421f0cfd8a3c84f8560cc06
 }
 
 ### ImportModuleContent
-POST {{host}}/api/v1/registry/import/6425acfb11f8d1f6a1edb3c5
+POST {{host}}/api/v1/registry/import/642ea942be08d868d9dea455
 
 ### GetModuleContent
-GET {{host}}/api/v1/registry/6425be85659882a7c88886ef
+GET {{host}}/api/v1/registry/642ea957be08d868d9dea457
+
+### ExecuteRegistry
+POST {{host}}/api/v1/registry/execute/642ea957be08d868d9dea457
+{
+    "command": "init"
+}

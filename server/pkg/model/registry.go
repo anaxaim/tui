@@ -19,3 +19,7 @@ type RegistryContent struct {
 	Content       map[string]string  `json:"content" bson:"content"`
 	ParsedContent *tfconfig.Module   `json:"parsedContent" bson:"parsedContent"`
 }
+
+type ExecuteCommand struct {
+	Command string `json:"command" bson:"-"`
+}
