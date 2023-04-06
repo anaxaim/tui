@@ -1,9 +1,14 @@
 package service
 
 import (
+	"bytes"
+	"context"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
+
+	"github.com/mattn/go-colorable"
 
 	"github.com/anaxaim/tui/server/pkg/model"
 	"github.com/anaxaim/tui/server/pkg/repository"
@@ -86,4 +91,20 @@ func (r *registryService) ImportModuleContentByID(id string) (*model.RegistryCon
 
 func (r *registryService) GetModuleContentByID(id string) (*model.RegistryContent, error) {
 	return r.registryRepository.Get(id)
+}
+
+func (r *registryService) Execute(terraformVersion, command string) ([]byte, error) {
+	containerName := "tui-terraform-" + terraformVersion
+
+	cmd := exec.CommandContext(context.Background(), "docker", "exec", "-i", "-w", "/terraform", containerName, "terraform", command)
+
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = colorable.NewNonColorable(&stdout)
+	cmd.Stderr = colorable.NewNonColorable(&stderr)
+
+	if err := cmd.Run(); err != nil {
+		return nil, fmt.Errorf("terraform command execution failed: %w, stderr: %s", err, stderr.String())
+	}
+
+	return stdout.Bytes(), nil
 }

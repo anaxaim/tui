@@ -26,4 +26,5 @@ type ModuleService interface {
 type RegistryService interface {
 	ImportModuleContentByID(id string) (*model.RegistryContent, error)
 	GetModuleContentByID(id string) (*model.RegistryContent, error)
+	Execute(terraformVersion, command string) ([]byte, error)
 }

@@ -58,3 +58,17 @@ services:
     networks:
       tui:
         ipv4_address: 177.7.0.14
+
+  terraform-latest:
+    build:
+      context: ./deploy
+      dockerfile: terraform.Dockerfile
+      args:
+        TERRAFORM_VERSION: 1.4.4
+    container_name: tui-terraform-latest
+    volumes:
+      - /terraform
+    command: [ "sh", "-c", "sleep infinity" ]
+    networks:
+      tui:
+        ipv4_address: 177.7.0.15

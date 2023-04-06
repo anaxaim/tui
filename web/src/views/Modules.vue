@@ -62,7 +62,7 @@
 
       <template #footer>
         <span class="dialog-footer">
-          <el-button type="success" @click="createModule">Create</el-button>
+          <el-button type="success" @click="createModule()">Create</el-button>
           <el-button type="danger" @click="showCreate = false">Cancel</el-button>
         </span>
       </template>
