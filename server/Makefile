@@ -27,7 +27,7 @@ checks: vet fmt gofumpt
 install-golangci-lint:
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.52.2
 
-lint: install-golangci-lint ## run golangci lint
+linters: install-golangci-lint ## run golangci lint
 	golangci-lint run
 
 run: ## run server

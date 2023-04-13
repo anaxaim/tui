@@ -10,7 +10,6 @@ RUN apk add --update --no-cache ca-certificates curl unzip \
     && apk del curl unzip \
     && rm -rf /var/cache/apk/* \
     && mkdir /terraform \
-    && chown nobody:nogroup /terraform
+    && chmod 777 -R /terraform
 
-USER nobody
 CMD ["sh", "-c", "sleep infinity"]

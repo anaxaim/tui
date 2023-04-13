@@ -1,9 +1,6 @@
 package model
 
-import (
-	"github.com/hashicorp/terraform-config-inspect/tfconfig"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-)
+import "github.com/hashicorp/terraform-config-inspect/tfconfig"
 
 type RegistryType string
 
@@ -12,14 +9,36 @@ const (
 	GITLAB RegistryType = "gitlab"
 )
 
-type RegistryContent struct {
-	ID            primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	ModuleID      primitive.ObjectID `json:"moduleId" bson:"moduleId"`
-	RegistryType  RegistryType       `json:"registryType" bson:"registryType"`
-	Content       map[string]string  `json:"content" bson:"content"`
-	ParsedContent *tfconfig.Module   `json:"parsedContent" bson:"parsedContent"`
+type RegistryDetails struct {
+	RegistryType  RegistryType      `json:"registryType,omitempty" bson:"registryType,omitempty"`
+	ProjectID     string            `json:"projectId,omitempty" bson:"projectId,omitempty"`
+	Content       map[string]string `json:"content" bson:"content"`
+	ParsedContent *ParsedContent    `json:"parsedContent" bson:"parsedContent"`
 }
 
-type ExecuteCommand struct {
-	Command string `json:"command" bson:"-"`
+type ParsedContent struct {
+	Variables   map[string]*ParsedVariable               `json:"variables,omitempty" bson:"variables,omitempty"`
+	Outputs     map[string]*ParsedOutput                 `json:"outputs,omitempty" bson:"outputs,omitempty"`
+	Providers   map[string]*tfconfig.ProviderRequirement `json:"requiredProviders,omitempty" bson:"requiredProviders,omitempty"`
+	Resources   map[string]*ParsedResource               `json:"resources,omitempty" bson:"resources,omitempty"`
+	DataSources map[string]*ParsedResource               `json:"dataSources,omitempty" bson:"dataSources,omitempty"`
+}
+
+type ParsedResource struct {
+	Provider string `json:"provider" bson:"provider"`
+}
+
+type ParsedOutput struct {
+	Name        string `json:"name" bson:"name"`
+	Description string `json:"description,omitempty" bson:"description,omitempty"`
+	Sensitive   bool   `json:"sensitive,omitempty" bson:"sensitive,omitempty"`
+}
+
+type ParsedVariable struct {
+	Name        string      `json:"name" bson:"name"`
+	Type        string      `json:"type,omitempty" bson:"type,omitempty"`
+	Description string      `json:"description,omitempty" bson:"description,omitempty"`
+	Default     interface{} `json:"default" bson:"default"`
+	Required    bool        `json:"required" bson:"required"`
+	Sensitive   bool        `json:"sensitive,omitempty" bson:"sensitive,omitempty"`
 }

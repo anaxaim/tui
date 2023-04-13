@@ -20,11 +20,7 @@ type ModuleService interface {
 	Create(*model.TerraformModule) (*model.TerraformModule, error)
 	Update(string, *model.TerraformModule) (*model.TerraformModule, error)
 	Delete(id string) error
+	ImportModuleContent(id, workingDir string) (*model.TerraformModule, error)
+	Execute(terraformVersion, command, id string) ([]byte, error)
 	Validate(*model.TerraformModule) error
-}
-
-type RegistryService interface {
-	ImportModuleContentByID(id string) (*model.RegistryContent, error)
-	GetModuleContentByID(id string) (*model.RegistryContent, error)
-	Execute(terraformVersion, command string) ([]byte, error)
 }

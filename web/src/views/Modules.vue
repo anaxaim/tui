@@ -169,21 +169,32 @@
                   <el-button size="small" type="danger" @click="deleteModule(scope.row)">yes</el-button>
                 </span>
               </el-popover>
-              <el-button class="operation_icon" size="small" circle @click="fetchLogs(scope.row)" :icon="Log" />
-              <el-drawer v-model="drawer" :append-to-body="true" :with-header="false" size="40%">
-                <div>
-                  <h3>Provider:</h3>
-                  <pre>{{ logs.provider_configs }}</pre>
-                  <h3>Variables:</h3>
-                  <pre>{{ logs.variables }}</pre>
-                  <h3>Resources:</h3>
-                  <pre>{{ logs.managed_resources }}</pre>
-                  <h3>DataSources:</h3>
-                  <pre>{{ logs.data_resources }}</pre>
-                  <h3>Outputs:</h3>
-                  <pre>{{ logs.outputs }}</pre>
-                </div>
-              </el-drawer>
+              <el-dropdown class="operation_icon" trigger="click">
+                <el-button size="small" circle :icon="More" />
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-drawer v-model="drawer" :append-to-body="true" :with-header="false" size="40%">
+                      <div>
+                        <h3>Providers:</h3>
+                        <pre>{{ logs.requiredProviders }}</pre>
+                        <h3>Variables:</h3>
+                        <pre>{{ logs.variables }}</pre>
+                        <h3>Resources:</h3>
+                        <pre>{{ logs.resources }}</pre>
+                        <h3>DataSources:</h3>
+                        <pre>{{ logs.dataSources }}</pre>
+                        <h3>Outputs:</h3>
+                        <pre>{{ logs.outputs }}</pre>
+                      </div>
+                    </el-drawer>
+                    <el-dropdown-item :icon="Log" @click="fetchLogs(scope.row.id)">Info</el-dropdown-item>
+                    <el-dropdown-item :icon="Newlybuild" @click="executeCommand(scope.row.id, 'init')">Init</el-dropdown-item>
+                    <el-dropdown-item :icon="Browser" @click="executeCommand(scope.row.id, 'plan')">Plan</el-dropdown-item>
+                    <el-dropdown-item :icon="ApiApp" @click="executeCommand(scope.row.id, 'apply')">Apply</el-dropdown-item>
+                    <el-dropdown-item :icon="RefreshOne" @click="executeCommand(scope.row.id, 'destroy')">Destroy</el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
             </template>
           </el-table-column>
           <el-table-column prop="name" label="Name" sortable min-width="70px">
@@ -228,7 +239,7 @@
   imports
 */
 import {
-  CloudStorage, Delete, Edit, Log, Download, Search, GithubOne, Gitlab, Plus, Minus,
+  CloudStorage, Delete, Edit, Log, Download, Search, GithubOne, Gitlab, Plus, Minus, More, Newlybuild, Browser, ApiApp, RefreshOne,
 } from '@icon-park/vue-next';
 
 import {
@@ -427,7 +438,7 @@ const deleteModule = (row) => {
 */
 const importRegistry = (id) => {
   request
-    .post(`/api/v1/registry/import/${id}`)
+    .post(`/api/v1/modules/import/${id}`)
     .then((response) => {
       ElMessage.success('Launched module import');
       const index = modules.value.findIndex((v) => v.id === id);
@@ -464,8 +475,8 @@ const logs = ref({});
 
 const drawer = ref(false);
 
-const fetchLogs = (row) => {
-  const index = modules.value.findIndex((v) => v.id === row.id);
+const fetchLogs = (id) => {
+  const index = modules.value.findIndex((v) => v.id === id);
   const moduleInfo = modules.value[index];
 
   if (moduleInfo.status !== 'RUNNING') {
@@ -476,18 +487,17 @@ const fetchLogs = (row) => {
     return;
   }
 
-  const id = moduleInfo.registryDetails.registryId;
   logs.value = {
-    provider_configs: null,
+    requiredProviders: null,
     variables: null,
-    managed_resources: null,
-    data_resources: null,
+    resources: null,
+    dataSources: null,
     outputs: null,
   };
   request
-    .get(`/api/v1/registry/${id}`)
+    .get(`/api/v1/modules/${id}`)
     .then((response) => {
-      const data = response.data.data.parsedContent;
+      const data = response.data.data.registryDetails.parsedContent;
       logs.value = Object.fromEntries(Object.keys(logs.value).map((key) => {
         const obj = {};
         obj[key] = {};
@@ -503,6 +513,24 @@ const fetchLogs = (row) => {
       }));
     });
   drawer.value = true;
+};
+
+/*
+ Execute
+*/
+const executeCommand = (id, command) => {
+  request
+    .post(`/api/v1/modules/execute/${id}`, {
+      command,
+    })
+    .then((response) => {
+      console.log(response);
+      ElMessage.success(`Command '${command}' executed successfully`);
+    })
+    .catch((err) => {
+      console.error(`Execute command '${command}' error:`, err);
+      ElMessage.error(`Execute command '${command}' error`);
+    });
 };
 </script>
 

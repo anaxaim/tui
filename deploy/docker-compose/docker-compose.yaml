@@ -9,6 +9,7 @@ networks:
 
 volumes:
   mongo:
+  terraform:
 
 services:
   server:
@@ -25,6 +26,8 @@ services:
       - mongo
     links:
       - mongo
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       tui:
         ipv4_address:
@@ -67,8 +70,7 @@ services:
         TERRAFORM_VERSION: 1.4.4
     container_name: tui-terraform-latest
     volumes:
-      - /terraform
-    command: [ "sh", "-c", "sleep infinity" ]
+      - terraform:/terraform
     networks:
       tui:
         ipv4_address: 177.7.0.15

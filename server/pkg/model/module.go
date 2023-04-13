@@ -1,6 +1,8 @@
 package model
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
+import (
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
 
 type Status string
 
@@ -50,13 +52,11 @@ type TerraformImage struct {
 	Tag        string `json:"tag" bson:"tag"`
 }
 
-type RegistryDetails struct {
-	RegistryType RegistryType       `json:"registryType,omitempty" bson:"registryType,omitempty"`
-	ProjectID    string             `json:"projectId,omitempty" bson:"projectId,omitempty"`
-	RegistryID   primitive.ObjectID `json:"registryId,omitempty" bson:"registryId,omitempty"`
-}
-
 type (
 	TerraformModules []TerraformModule
 	Variables        []Variable
 )
+
+type ExecuteCommand struct {
+	Command string `json:"command" bson:"-"`
+}
