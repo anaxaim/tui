@@ -102,7 +102,7 @@ func (m *ModuleController) Import(c *gin.Context) {
 
 	workingTmpDir := filepath.Join(os.TempDir(), moduleID)
 	if err := os.MkdirAll(workingTmpDir, 0o777); err != nil {
-		common.ResponseFailed(c, http.StatusBadRequest, err)
+		common.ResponseFailed(c, http.StatusInternalServerError, err)
 		return
 	}
 
