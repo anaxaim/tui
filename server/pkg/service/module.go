@@ -103,7 +103,13 @@ func (m *moduleService) ImportModuleContent(id, workingDir string) (*model.Terra
 		return nil, err
 	}
 
-	content, err := utils.GetModuleContent(tree)
+	var content map[string]string
+	if module.Directory == "" {
+		content, err = utils.GetModuleContentRoot(tree)
+	} else {
+		content, err = utils.GetModuleContentDirectory(tree, module.Directory)
+	}
+
 	if err != nil {
 		return nil, err
 	}

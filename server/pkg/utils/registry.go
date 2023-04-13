@@ -17,9 +17,17 @@ import (
 
 func CloneGitRepo(module *model.TerraformModule) (*git.Repository, error) {
 	memStorage := memory.NewStorage()
+	branch := module.GitBranch
+
+	if branch == "" {
+		branch = "master"
+	}
+
+	referenceName := plumbing.NewBranchReferenceName(branch)
+
 	repo, err := git.Clone(memStorage, nil, &git.CloneOptions{
 		URL:           module.GitRepositoryURL,
-		ReferenceName: plumbing.NewBranchReferenceName("master"),
+		ReferenceName: referenceName,
 		SingleBranch:  true,
 	})
 
@@ -42,10 +50,10 @@ func GetCommitTree(repo *git.Repository) (*object.Tree, error) {
 	return tree, err
 }
 
-func GetModuleContent(tree *object.Tree) (map[string]string, error) {
+func processFiles(tree *object.Tree, filterFunc func(string) bool) (map[string]string, error) {
 	content := make(map[string]string)
 	err := tree.Files().ForEach(func(f *object.File) error {
-		if !strings.HasPrefix(f.Name, ".terraform") && filepath.Ext(f.Name) == ".tf" {
+		if filterFunc(f.Name) {
 			reader, err := f.Reader()
 			if err != nil {
 				return err
@@ -63,6 +71,36 @@ func GetModuleContent(tree *object.Tree) (map[string]string, error) {
 	})
 
 	return content, err
+}
+
+func GetModuleContentRoot(tree *object.Tree) (map[string]string, error) {
+	return processFiles(tree, func(filename string) bool {
+		return !strings.HasPrefix(filename, ".terraform") && filepath.Ext(filename) == ".tf"
+	})
+}
+
+func GetModuleContentDirectory(tree *object.Tree, moduleDirectory string) (map[string]string, error) {
+	content, err := processFiles(tree, func(filename string) bool {
+		if !strings.HasPrefix(filename, moduleDirectory+"/") {
+			return false
+		}
+
+		relativePath := strings.TrimPrefix(filename, moduleDirectory+"/")
+
+		return !strings.HasPrefix(relativePath, ".terraform") && filepath.Ext(relativePath) == ".tf"
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	trimmedContent := make(map[string]string)
+
+	for key, value := range content {
+		trimmedKey := strings.TrimPrefix(key, moduleDirectory+"/")
+		trimmedContent[trimmedKey] = value
+	}
+
+	return trimmedContent, nil
 }
 
 func WriteFiles(tempDir string, content map[string]string) error {

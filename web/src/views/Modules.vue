@@ -3,37 +3,41 @@
     <el-dialog v-model="showCreate" top="5vh" title="Create Module" width="60%">
       <el-form ref="createModuleRef" :model="newModule" label-position="top" label-width="auto">
         <div class="form_content">
-          <el-form-item style="width: 45%;" label="Name" prop="name" required>
+          <el-form-item style="width: 48%;" label="Name" prop="name" required>
             <el-input v-model="newModule.name" />
             <span>The name of your module</span>
           </el-form-item>
-          <el-form-item style="width: 55%;" label="Description" prop="description">
+          <el-form-item style="width: 50%; " label="Description" prop="description">
             <el-input v-model="newModule.description" type="textarea" />
             <span>The description of your module</span>
           </el-form-item>
         </div>
         <div class="form_content">
-          <el-form-item style="width: 45%;" label="Main provider" prop="mainProvider">
-            <el-input v-model="newModule.mainProvider" />
-            <span>The main provider of this module</span>
-          </el-form-item>
-          <el-form-item style="width: 25%; margin-right: 5rem;" label="Provider version" prop="providerVersion">
-            <el-input v-model="newModule.providerVersion" />
-            <span>The version of the provider</span>
-          </el-form-item>
-          <el-form-item style="width: 20%;" label="Terraform version" prop="terraformVersion">
-            <el-input v-model="newModule.terraformVersion" />
-            <span>The version of Terraform</span>
-          </el-form-item>
-        </div>
-        <div class="form_content">
-          <el-form-item style="width: 60%;" label="Git Repository URL" prop="gitRepositoryUrl" required>
+          <el-form-item style="width: 48%;" label="Git Repository URL" prop="gitRepositoryUrl" required>
             <el-input v-model="newModule.gitRepositoryUrl" />
             <span>The URL of the module's git repository</span>
           </el-form-item>
-          <el-form-item style="width: 40%;" label="Git repository directory" prop="directory">
+          <el-form-item style="width: 20%;" label="Repository branch" prop="gitBranch">
+            <el-input v-model="newModule.gitBranch" />
+            <span>"master" by default</span>
+          </el-form-item>
+          <el-form-item style="width: 29%;" label="Repository directory" prop="directory">
             <el-input v-model="newModule.directory" />
-            <span>The sub-directory of the module's code inside the repository</span>
+            <span>Module subdirectory inside the repository</span>
+          </el-form-item>
+        </div>
+        <div class="form_content">
+          <el-form-item style="width: 25%;" label="Main provider" prop="mainProvider">
+            <el-input v-model="newModule.mainProvider" />
+            <span>The main provider of this module</span>
+          </el-form-item>
+          <el-form-item style="width: 22%;" label="Provider version" prop="providerVersion">
+            <el-input v-model="newModule.providerVersion" />
+            <span>The version of the provider</span>
+          </el-form-item>
+          <el-form-item style="width: 29%; margin-left: 21%;" label="Terraform version" prop="terraformVersion">
+            <el-input v-model="newModule.terraformVersion" />
+            <span>The version of Terraform</span>
           </el-form-item>
         </div>
         <el-divider />
@@ -67,40 +71,45 @@
         </span>
       </template>
     </el-dialog>
+
     <el-dialog v-model="showUpdate" top="5vh" title="Update Module" width="60%">
       <el-form ref="updateFormRef" :model="updatedModule" label-position="top" label-width="auto">
         <div class="form_content">
-          <el-form-item style="width: 45%;" label="Name" prop="name" required>
+          <el-form-item style="width: 48%;" label="Name" prop="name" required>
             <el-input v-model="updatedModule.name" />
             <span>The name of your module</span>
           </el-form-item>
-          <el-form-item style="width: 55%;" label="Description" prop="description">
+          <el-form-item style="width: 50%; " label="Description" prop="description">
             <el-input v-model="updatedModule.description" type="textarea" />
             <span>The description of your module</span>
           </el-form-item>
         </div>
         <div class="form_content">
-          <el-form-item style="width: 45%;" label="Main provider" prop="mainProvider">
-            <el-input v-model="updatedModule.mainProvider" disabled />
-            <span>The main provider of this module</span>
+          <el-form-item style="width: 48%;" label="Git Repository URL" prop="gitRepositoryUrl" required>
+            <el-input v-model="updatedModule.gitRepositoryUrl" />
+            <span>The URL of the module's git repository</span>
           </el-form-item>
-          <el-form-item style="width: 25%; margin-right: 5rem;" label="Provider version" prop="providerVersion">
-            <el-input v-model="updatedModule.providerVersion" />
-            <span>The version of the provider</span>
+          <el-form-item style="width: 20%;" label="Repository branch" prop="gitBranch">
+            <el-input v-model="updatedModule.gitBranch" />
+            <span>"master" by default</span>
           </el-form-item>
-          <el-form-item style="width: 20%;" label="Terraform version" prop="terraformVersion">
-            <el-input v-model="updatedModule.terraformVersion" />
-            <span>The version of Terraform</span>
+          <el-form-item style="width: 29%;" label="Repository directory" prop="directory">
+            <el-input v-model="updatedModule.directory" />
+            <span>Module subdirectory inside the repository</span>
           </el-form-item>
         </div>
         <div class="form_content">
-          <el-form-item style="width: 60%;" label="Git Repository URL" prop="gitRepositoryUrl">
-            <el-input v-model="updatedModule.gitRepositoryUrl" disabled />
-            <span>The URL of the module's git repository</span>
+          <el-form-item style="width: 25%;" label="Main provider" prop="mainProvider">
+            <el-input v-model="updatedModule.mainProvider" disabled />
+            <span>The main provider of this module</span>
           </el-form-item>
-          <el-form-item style="width: 40%;" label="Git repository directory" prop="directory">
-            <el-input v-model="updatedModule.directory" />
-            <span>The sub-directory of the module's code inside the repository</span>
+          <el-form-item style="width: 22%;" label="Provider version" prop="providerVersion">
+            <el-input v-model="updatedModule.providerVersion" />
+            <span>The version of the provider</span>
+          </el-form-item>
+          <el-form-item style="width: 29%; margin-left: 21%;" label="Terraform version" prop="terraformVersion">
+            <el-input v-model="updatedModule.terraformVersion" />
+            <span>The version of Terraform</span>
           </el-form-item>
         </div>
         <el-divider />
@@ -281,6 +290,7 @@ const newModule = ref({
   description: '',
   provider: '',
   gitRepositoryUrl: '',
+  gitBranch: '',
   directory: '',
   mainProvider: '',
   providerVersion: '',
@@ -306,6 +316,7 @@ const createModule = () => {
           name: newModule.value.name,
           description: newModule.value.description,
           gitRepositoryUrl: newModule.value.gitRepositoryUrl,
+          gitBranch: newModule.value.gitBranch,
           directory: newModule.value.directory,
           mainProvider: newModule.value.mainProvider,
           providerVersion: newModule.value.providerVersion,
@@ -343,6 +354,7 @@ const updatedModule = ref({
   description: '',
   provider: '',
   gitRepositoryUrl: '',
+  gitBranch: '',
   directory: '',
   mainProvider: '',
   providerVersion: '',
