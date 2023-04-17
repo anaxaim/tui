@@ -11,18 +11,20 @@ var ErrConvertToHex = errors.New("failed to convert objectid to hex")
 
 func NewRepository(db *database.MongoDB) Repository {
 	r := &repository{
-		db:     db,
-		user:   newUserRepository(db),
-		module: newModuleRepository(db),
+		db:         db,
+		user:       newUserRepository(db),
+		module:     newModuleRepository(db),
+		credential: newCredentialRepository(db),
 	}
 
 	return r
 }
 
 type repository struct {
-	db     *database.MongoDB
-	user   UserRepository
-	module ModuleRepository
+	db         *database.MongoDB
+	user       UserRepository
+	module     ModuleRepository
+	credential CredentialRepository
 }
 
 func (r *repository) User() UserRepository {
@@ -31,6 +33,10 @@ func (r *repository) User() UserRepository {
 
 func (r *repository) Module() ModuleRepository {
 	return r.module
+}
+
+func (r *repository) Credential() CredentialRepository {
+	return r.credential
 }
 
 func (r *repository) Close() error {

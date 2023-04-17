@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Login from 'views/Login.vue';
 import Modules from 'views/Modules.vue';
-import Stacks from 'views/Stacks.vue';
+import Credentials from 'views/Credentials.vue';
 import { getUser } from '@/utils';
 
 const routes = [
@@ -20,9 +20,9 @@ const routes = [
     component: Modules,
   },
   {
-    path: '/stacks',
-    name: 'Stacks',
-    component: Stacks,
+    path: '/credentials',
+    name: 'Credentials',
+    component: Credentials,
   },
 ];
 

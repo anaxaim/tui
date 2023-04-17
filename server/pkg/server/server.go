@@ -35,15 +35,17 @@ func New(conf *config.Config, logger *logrus.Logger) (*Server, error) {
 	repo := repository.NewRepository(db)
 
 	userService := service.NewUserService(repo.User())
-	moduleService := service.NewModuleService(repo.Module())
+	moduleService := service.NewModuleService(repo.Module(), repo.Credential())
+	credentialService := service.NewCredentialService(repo.Credential())
 	jwtService := authentication.NewJWTService(conf.Server.JWTSecret)
 	terraformService := container.NewTerraformService()
 
 	userController := controller.NewUserController(userService)
 	moduleController := controller.NewModuleController(moduleService, terraformService)
+	credentialController := controller.NewCredentialController(credentialService)
 	authController := controller.NewAuthController(userService, jwtService)
 
-	controllers := []controller.Controller{userController, moduleController, authController}
+	controllers := []controller.Controller{userController, moduleController, credentialController, authController}
 
 	gin.SetMode(conf.Server.ENV)
 

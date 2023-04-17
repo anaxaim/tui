@@ -9,6 +9,7 @@ import (
 type Repository interface {
 	User() UserRepository
 	Module() ModuleRepository
+	Credential() CredentialRepository
 	Close() error
 	Ping(ctx context.Context) error
 }
@@ -33,5 +34,14 @@ type ModuleRepository interface {
 	Create(*model.TerraformModule) (*model.TerraformModule, error)
 	Update(*model.TerraformModule) (*model.TerraformModule, error)
 	Delete(*model.TerraformModule) error
+	Migrate() error
+}
+
+type CredentialRepository interface {
+	GetCredentialByID(string) (*model.Credential, error)
+	GetCredentialByName(string) (*model.Credential, error)
+	List() (model.Credentials, error)
+	Create(*model.Credential) (*model.Credential, error)
+	Delete(*model.Credential) error
 	Migrate() error
 }

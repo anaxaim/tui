@@ -24,3 +24,10 @@ type ModuleService interface {
 	Execute(terraformVersion, command, id string) ([]byte, error)
 	Validate(*model.TerraformModule) error
 }
+
+type CredentialService interface {
+	List() (model.Credentials, error)
+	Create(*model.Credential) (*model.Credential, error)
+	Get(id string) (*model.Credential, error)
+	Delete(id string) error
+}

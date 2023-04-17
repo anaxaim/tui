@@ -12,6 +12,7 @@ const (
 type RegistryDetails struct {
 	RegistryType  RegistryType      `json:"registryType,omitempty" bson:"registryType,omitempty"`
 	ProjectID     string            `json:"projectId,omitempty" bson:"projectId,omitempty"`
+	Credentials   string            `json:"credentials,omitempty" bson:"credentials,omitempty"`
 	Content       map[string]string `json:"content" bson:"content"`
 	ParsedContent *ParsedContent    `json:"parsedContent" bson:"parsedContent"`
 }

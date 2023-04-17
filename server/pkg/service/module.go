@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-git/go-git/v5/plumbing/transport/http"
 	"github.com/mattn/go-colorable"
 
 	"github.com/anaxaim/tui/server/pkg/model"
@@ -17,15 +18,19 @@ import (
 	"github.com/anaxaim/tui/server/pkg/utils"
 )
 
-var ErrUserIsEmpty = errors.New("user is empty")
+const VariablesFile = "variables.tf"
+
+var ErrModuleIsEmpty = errors.New("module is empty")
 
 type moduleService struct {
-	moduleRepository repository.ModuleRepository
+	moduleRepository     repository.ModuleRepository
+	credentialRepository repository.CredentialRepository
 }
 
-func NewModuleService(moduleRepository repository.ModuleRepository) ModuleService {
+func NewModuleService(moduleRepository repository.ModuleRepository, credentialRepository repository.CredentialRepository) ModuleService {
 	return &moduleService{
-		moduleRepository: moduleRepository,
+		moduleRepository:     moduleRepository,
+		credentialRepository: credentialRepository,
 	}
 }
 
@@ -46,7 +51,7 @@ func (m *moduleService) Create(module *model.TerraformModule) (*model.TerraformM
 	if strings.Contains(domain, string(model.GITHUB)) {
 		module.RegistryDetails.RegistryType = model.GITHUB
 		module.RegistryDetails.ProjectID = path
-	} else if strings.Contains(domain, string(model.GITLAB)) {
+	} else { // } else if strings.Contains(domain, string(model.GITLAB)) {
 		module.RegistryDetails.RegistryType = model.GITLAB
 		module.RegistryDetails.ProjectID = path
 	}
@@ -93,7 +98,12 @@ func (m *moduleService) ImportModuleContent(id, workingDir string) (*model.Terra
 		return nil, err
 	}
 
-	repo, err := utils.CloneGitRepo(module)
+	auth := &http.BasicAuth{}
+	if err := m.setAuth(auth, module.RegistryDetails.Credentials); err != nil {
+		return nil, err
+	}
+
+	repo, err := utils.CloneGitRepo(module, auth)
 	if err != nil {
 		return nil, err
 	}
@@ -103,26 +113,20 @@ func (m *moduleService) ImportModuleContent(id, workingDir string) (*model.Terra
 		return nil, err
 	}
 
-	var content map[string]string
-	if module.Directory == "" {
-		content, err = utils.GetModuleContentRoot(tree)
-	} else {
-		content, err = utils.GetModuleContentDirectory(tree, module.Directory)
-	}
-
+	content, err := utils.GetModuleContent(tree, module.Directory)
 	if err != nil {
 		return nil, err
 	}
 
 	if len(module.Variables) > 0 {
-		contentVariables, ok := content["variables.tf"]
+		contentVariables, ok := content[VariablesFile]
 		if ok {
 			newContentVariables, err := utils.UpdateContentVariables(contentVariables, module.Variables)
 			if err != nil {
 				return nil, err
 			}
 
-			content["variables.tf"] = newContentVariables
+			content[VariablesFile] = newContentVariables
 		}
 	}
 
@@ -151,7 +155,13 @@ func (m *moduleService) Execute(terraformVersion, command, id string) ([]byte, e
 	containerName := "tui-terraform-" + terraformVersion
 	workingDir := fmt.Sprintf("/terraform/%s", id)
 
-	cmd := exec.CommandContext(context.Background(), "docker", "exec", "-i", "-u", "0", "-w", workingDir, containerName, "terraform", command)
+	args := []string{"exec", "-i", "-u", "0", "-w", workingDir, containerName, "terraform", command}
+
+	if command == "apply" || command == "destroy" {
+		args = append(args, "-auto-approve")
+	}
+
+	cmd := exec.CommandContext(context.Background(), "docker", args...)
 
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = colorable.NewNonColorable(&stdout)
@@ -166,7 +176,7 @@ func (m *moduleService) Execute(terraformVersion, command, id string) ([]byte, e
 
 func (m *moduleService) Validate(module *model.TerraformModule) error {
 	if module == nil {
-		return fmt.Errorf("%w", ErrUserIsEmpty)
+		return fmt.Errorf("%w", ErrModuleIsEmpty)
 	}
 
 	return nil
@@ -174,4 +184,19 @@ func (m *moduleService) Validate(module *model.TerraformModule) error {
 
 func (m *moduleService) GetModuleByID(id string) (*model.TerraformModule, error) {
 	return m.moduleRepository.GetModuleByID(id)
+}
+
+func (m *moduleService) setAuth(auth *http.BasicAuth, credentials string) error {
+	if credentials == "" {
+		return nil
+	}
+
+	cred, err := m.credentialRepository.GetCredentialByName(credentials)
+	if err != nil {
+		return err
+	}
+
+	utils.SetGitlabAuth(auth, cred.Secrets)
+
+	return nil
 }

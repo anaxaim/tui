@@ -13,29 +13,37 @@
           </el-form-item>
         </div>
         <div class="form_content">
-          <el-form-item style="width: 48%;" label="Git Repository URL" prop="gitRepositoryUrl" required>
+          <el-form-item style="width: 99%;" label="Git Repository URL" prop="gitRepositoryUrl" required>
             <el-input v-model="newModule.gitRepositoryUrl" />
             <span>The URL of the module's git repository</span>
           </el-form-item>
-          <el-form-item style="width: 20%;" label="Repository branch" prop="gitBranch">
-            <el-input v-model="newModule.gitBranch" />
-            <span>"master" by default</span>
-          </el-form-item>
-          <el-form-item style="width: 29%;" label="Repository directory" prop="directory">
-            <el-input v-model="newModule.directory" />
-            <span>Module subdirectory inside the repository</span>
-          </el-form-item>
         </div>
         <div class="form_content">
-          <el-form-item style="width: 25%;" label="Main provider" prop="mainProvider">
+            <el-form-item style="width: 33%;" label="Repository branch" prop="gitBranch">
+                <el-input v-model="newModule.gitBranch" />
+                <span>"master" branch by default</span>
+            </el-form-item>
+            <el-form-item style="width: 33%;" label="Repository directory" prop="directory">
+                <el-input v-model="newModule.directory" />
+                <span>Module subdirectory inside the repository</span>
+            </el-form-item>
+            <el-form-item style="width: 33%;" label="Credential" prop="credential">
+                <el-select v-model="currentCredential" filterable placeholder="please select credential" clearable style="width: 100%;" >
+                    <el-option v-for="cr in credentials" :label="cr.name" :value="cr.name" />
+                </el-select>
+                <span>Repository credentials (e.g. gitlab access token)</span>
+            </el-form-item>
+        </div>
+        <div class="form_content">
+          <el-form-item style="width: 33%;" label="Main provider" prop="mainProvider">
             <el-input v-model="newModule.mainProvider" />
             <span>The main provider of this module</span>
           </el-form-item>
-          <el-form-item style="width: 22%;" label="Provider version" prop="providerVersion">
+          <el-form-item style="width: 33%;" label="Provider version" prop="providerVersion">
             <el-input v-model="newModule.providerVersion" />
             <span>The version of the provider</span>
           </el-form-item>
-          <el-form-item style="width: 29%; margin-left: 21%;" label="Terraform version" prop="terraformVersion">
+          <el-form-item style="width: 33%;" label="Terraform version" prop="terraformVersion">
             <el-input v-model="newModule.terraformVersion" />
             <span>The version of Terraform</span>
           </el-form-item>
@@ -85,32 +93,40 @@
           </el-form-item>
         </div>
         <div class="form_content">
-          <el-form-item style="width: 48%;" label="Git Repository URL" prop="gitRepositoryUrl" required>
-            <el-input v-model="updatedModule.gitRepositoryUrl" />
-            <span>The URL of the module's git repository</span>
-          </el-form-item>
-          <el-form-item style="width: 20%;" label="Repository branch" prop="gitBranch">
-            <el-input v-model="updatedModule.gitBranch" />
-            <span>"master" by default</span>
-          </el-form-item>
-          <el-form-item style="width: 29%;" label="Repository directory" prop="directory">
-            <el-input v-model="updatedModule.directory" />
-            <span>Module subdirectory inside the repository</span>
-          </el-form-item>
+            <el-form-item style="width: 99%;" label="Git Repository URL" prop="gitRepositoryUrl" required>
+                <el-input v-model="updatedModule.gitRepositoryUrl" disabled/>
+                <span>The URL of the module's git repository</span>
+            </el-form-item>
         </div>
         <div class="form_content">
-          <el-form-item style="width: 25%;" label="Main provider" prop="mainProvider">
-            <el-input v-model="updatedModule.mainProvider" disabled />
-            <span>The main provider of this module</span>
-          </el-form-item>
-          <el-form-item style="width: 22%;" label="Provider version" prop="providerVersion">
-            <el-input v-model="updatedModule.providerVersion" />
-            <span>The version of the provider</span>
-          </el-form-item>
-          <el-form-item style="width: 29%; margin-left: 21%;" label="Terraform version" prop="terraformVersion">
-            <el-input v-model="updatedModule.terraformVersion" />
-            <span>The version of Terraform</span>
-          </el-form-item>
+            <el-form-item style="width: 33%;" label="Repository branch" prop="gitBranch">
+                <el-input v-model="updatedModule.gitBranch" />
+                <span>"master" branch by default</span>
+            </el-form-item>
+            <el-form-item style="width: 33%;" label="Repository directory" prop="directory">
+                <el-input v-model="updatedModule.directory" />
+                <span>Module subdirectory inside the repository</span>
+            </el-form-item>
+            <el-form-item style="width: 33%;" label="Credential" prop="credential">
+                <el-select v-model="currentCredential" filterable placeholder="please select credential" clearable style="width: 100%;" >
+                    <el-option v-for="cr in credentials" :label="cr.name" :value="cr.name" />
+                </el-select>
+                <span>Repository credentials (e.g. gitlab access token)</span>
+            </el-form-item>
+        </div>
+        <div class="form_content">
+            <el-form-item style="width: 33%;" label="Main provider" prop="mainProvider">
+                <el-input v-model="updatedModule.mainProvider" disabled/>
+                <span>The main provider of this module</span>
+            </el-form-item>
+            <el-form-item style="width: 33%;" label="Provider version" prop="providerVersion">
+                <el-input v-model="updatedModule.providerVersion" />
+                <span>The version of the provider</span>
+            </el-form-item>
+            <el-form-item style="width: 33%;" label="Terraform version" prop="terraformVersion">
+                <el-input v-model="updatedModule.terraformVersion" />
+                <span>The version of Terraform</span>
+            </el-form-item>
         </div>
         <el-divider />
         <div>
@@ -273,6 +289,26 @@ onMounted(
 );
 
 /*
+  credentials
+*/
+const currentCredential = ref();
+const credentials = ref([]);
+onMounted(
+    () => {
+        request
+            .get('/api/v1/credentials')
+            .then((response) => {
+                credentials.value = response.data.data;
+                credentials.value.sort(function (a, b) {
+                    let x = a.credentials.name;
+                    let y = b.credentials.name;
+                    return x.localeCompare(y);
+                })
+            });
+    },
+);
+
+/*
   search
 */
 const search = ref('');
@@ -299,6 +335,7 @@ const newModule = ref({
     registryType: '',
     projectId: '',
     registryId: '',
+    credentials: ''
   },
   variables: [],
 });
@@ -324,6 +361,9 @@ const createModule = () => {
             repository: 'hashicorp/terraform',
             tag: newModule.value.terraformVersion,
           },
+          registryDetails: {
+              credentials: currentCredential.value
+          },
           variables: newModule.value.variables,
         })
         .then((response) => {
@@ -332,6 +372,7 @@ const createModule = () => {
           showCreate.value = false;
           form.resetFields();
           newModule.value.variables = [];
+          currentCredential.value = '';
         })
         .catch((err) => {
           console.error('Create module error:', err);
