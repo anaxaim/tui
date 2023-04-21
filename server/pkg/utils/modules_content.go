@@ -90,6 +90,7 @@ func UpdateContentVariables(contentVariables string, moduleVariables []model.Var
 			newLineIndex := strings.Index(contentVariables[varNameIndex+curlyBraceIndex:], "\n")
 
 			newContent = contentVariables[:varNameIndex+curlyBraceIndex+newLineIndex+1] + "  " + varDefault + "\n" + contentVariables[varNameIndex+curlyBraceIndex+newLineIndex+1:]
+			contentVariables = newContent
 		} else {
 			return "", fmt.Errorf("%w: %s", ErrNotFoundVariable, moduleVariable.Name)
 		}

@@ -3,7 +3,7 @@ import axios from 'axios';
 import { ElMessage } from 'element-plus';
 
 const service = axios.create({
-  timeout: 30000,
+  timeout: 180000,
   headers: {
     'Content-Type': 'application/json;charset=UTF-8',
   },
