@@ -1,0 +1,18 @@
+server:
+  env: "debug"
+  address: "127.0.0.1"
+  port: 8888
+  gracefulShutdownPeriod: 30
+
+db:
+  port: "27017"
+  host: "127.0.0.1"
+  database: "tui"
+  user: "tui"
+  password: "tui312"
+  migrationsPath: "./internal/migrations"
+
+taskServer:
+  brokerURL: "127.0.0.1:6379"
+  resultBackendURL: "mongodb://tui:tui312@127.0.0.1:27017/tui"
+  defaultQueue: "machinery_tasks"

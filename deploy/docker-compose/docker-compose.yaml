@@ -14,7 +14,7 @@ volumes:
 services:
   server:
     build:
-      context: ./server
+      context: ./backend
     container_name: tui-server
     restart: always
     ports:
