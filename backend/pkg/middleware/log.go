@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"os"
@@ -8,6 +9,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/hibiken/asynq"
 	"github.com/sirupsen/logrus"
 )
 
@@ -62,5 +64,21 @@ func LogMiddleware(logger *logrus.Logger, pathPrefix ...string) gin.HandlerFunc 
 		}()
 
 		c.Next()
+	}
+}
+
+func LogTaskMiddleware(logger *logrus.Logger) asynq.MiddlewareFunc {
+	return func(handler asynq.Handler) asynq.Handler {
+		return asynq.HandlerFunc(func(ctx context.Context, t *asynq.Task) error {
+			start := time.Now()
+			logger.Infof("Task: %s, Payload: %s", t.Type(), t.Payload())
+			if err := handler.ProcessTask(ctx, t); err != nil {
+				logger.Errorf("Task: %s, Error: %s", t.Type(), err.Error())
+				return err
+			}
+			logger.Infof("Finished task: %s: Elapsed Time = %v", t.Type(), time.Since(start))
+
+			return nil
+		})
 	}
 }

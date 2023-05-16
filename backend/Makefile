@@ -36,15 +36,21 @@ run: ## run server
 build: ## build server
 	go build -ldflags "$(LDFLAGS)" -mod vendor -o ../bin/tui cmd/server/main.go
 
-SERVER_IMG=tui-server
+
 MONGO_IMG=tui-mongo
 mongo:
-	docker rm -f $(MONGO_IMG) &>/dev/null && echo 'Removed old container' ; \
+	docker rm -f $(MONGO_IMG) &>/dev/null && echo 'Removed old mongo container' ; \
 	docker run --name $(MONGO_IMG) -d -p 27017:27017 mongo:6.0.5
 
-docker-build-server: ## build server image
+REDIS_IMG=tui-redis
+redis:
+	docker rm -f $(REDIS_IMG) &>/dev/null && echo 'Removed old redis container' ; \
+    docker run --name $(REDIS_IMG) -d -p 6379:6379 redis:7-alpine
+
+SERVER_IMG=tui-server
+docker-build-server:
 	docker build -t $(SERVER_IMG) .
 
 docker-run-server:
-	docker rm -f $(SERVER_IMG) &>/dev/null && echo 'Removed old container' ; \
+	docker rm -f $(SERVER_IMG) &>/dev/null && echo 'Removed old server container' ; \
 	docker run -d -v /var/run/docker.sock:/var/run/docker.sock -p 8888:8888 -e MONGO_HOST=$(MONGO_IMG) --name $(SERVER_IMG) $(SERVER_IMG)

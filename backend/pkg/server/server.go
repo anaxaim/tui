@@ -3,7 +3,6 @@ package server
 import (
 	"context"
 	"fmt"
-
 	"net/http"
 	"os"
 	"os/signal"
@@ -25,6 +24,7 @@ import (
 	"github.com/anaxaim/tui/backend/pkg/service"
 	"github.com/anaxaim/tui/backend/pkg/utils"
 	"github.com/anaxaim/tui/backend/pkg/version"
+	"github.com/anaxaim/tui/backend/pkg/worker"
 )
 
 func New(conf *config.Config, logger *logrus.Logger) (*Server, error) {
@@ -41,8 +41,13 @@ func New(conf *config.Config, logger *logrus.Logger) (*Server, error) {
 	jwtService := authentication.NewJWTService(conf.Server.JWTSecret)
 	terraformService := container.NewTerraformService()
 
+	dispatcher, err := worker.NewDispatcher(&conf.Redis)
+	if err != nil {
+		return nil, errors.Wrap(err, "dispatcher init failed")
+	}
+
 	userController := controller.NewUserController(userService)
-	moduleController := controller.NewModuleController(moduleService, terraformService)
+	moduleController := controller.NewModuleController(moduleService, terraformService, dispatcher.Client)
 	credentialController := controller.NewCredentialController(credentialService)
 	authController := controller.NewAuthController(userService, jwtService)
 
@@ -160,8 +165,8 @@ type Status struct {
 func (s *Server) Ping() *Status {
 	status := &Status{Ping: true}
 
-	ctx, cannel := context.WithTimeout(context.Background(), 2*time.Second)
-	defer cannel()
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 
 	if err := s.repository.Ping(ctx); err == nil {
 		status.DBRepository = true

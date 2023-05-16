@@ -59,5 +59,6 @@ type (
 )
 
 type ExecuteCommand struct {
-	Command string `json:"command" bson:"-"`
+	Command  string `json:"command" bson:"-"`
+	ModuleID string `json:"-" bson:"-"`
 }

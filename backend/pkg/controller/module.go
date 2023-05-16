@@ -2,28 +2,34 @@ package controller
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 	"path/filepath"
 
 	"github.com/gin-gonic/gin"
+	"github.com/hibiken/asynq"
 	"github.com/sirupsen/logrus"
 
 	"github.com/anaxaim/tui/backend/pkg/common"
 	"github.com/anaxaim/tui/backend/pkg/container"
 	"github.com/anaxaim/tui/backend/pkg/model"
 	"github.com/anaxaim/tui/backend/pkg/service"
+	"github.com/anaxaim/tui/backend/pkg/worker"
 )
 
 type ModuleController struct {
 	moduleService    service.ModuleService
 	terraformService *container.TerraformService
+	dispatcher       *asynq.Client
 }
 
-func NewModuleController(moduleService service.ModuleService, terraformService *container.TerraformService) Controller {
+func NewModuleController(moduleService service.ModuleService, terraformService *container.TerraformService, dispatcher *asynq.Client) Controller {
 	return &ModuleController{
 		moduleService:    moduleService,
 		terraformService: terraformService,
+		dispatcher:       dispatcher,
 	}
 }
 
@@ -130,22 +136,28 @@ func (m *ModuleController) Execute(c *gin.Context) {
 		return
 	}
 
-	id := c.Param("id")
-	terraformVersion := "latest"
+	executeCommand.ModuleID = c.Param("id")
 
-	if err := m.terraformService.RunContainer(context.Background(), terraformVersion); err != nil {
+	if err := m.terraformService.RunContainer(context.Background(), "latest"); err != nil {
 		common.ResponseFailed(c, http.StatusInternalServerError, err)
 		return
 	}
-	// defer m.terraformService.StopContainer(context.Background(), terraformVersion)
 
-	output, err := m.moduleService.Execute(terraformVersion, executeCommand.Command, id)
+	payload, err := json.Marshal(executeCommand)
 	if err != nil {
 		common.ResponseFailed(c, http.StatusInternalServerError, err)
 		return
 	}
 
-	common.ResponseSuccess(c, gin.H{"output": string(output)})
+	task := asynq.NewTask(worker.TaskExecute, payload)
+
+	taskInfo, err := m.dispatcher.Enqueue(task)
+	if err != nil {
+		common.ResponseFailed(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	common.ResponseSuccess(c, gin.H{"message": fmt.Sprintf("Task has been enqueued successfully: %s", taskInfo.ID)})
 }
 
 func (m *ModuleController) RegisterRoute(api *gin.RouterGroup) {

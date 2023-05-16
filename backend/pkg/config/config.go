@@ -7,9 +7,9 @@ import (
 )
 
 type Config struct {
-	Server     ServerConfig     `yaml:"server"`
-	DB         DBConfig         `yaml:"db"`
-	TaskServer TaskServerConfig `yaml:"taskServer"`
+	Server ServerConfig `yaml:"server"`
+	DB     DBConfig     `yaml:"db"`
+	Redis  RedisConfig  `yaml:"redis"`
 }
 
 type ServerConfig struct {
@@ -29,10 +29,17 @@ type DBConfig struct {
 	MigrationsPath string `yaml:"migrationsPath"`
 }
 
-type TaskServerConfig struct {
-	BrokerURL        string `yaml:"brokerURL"`
-	ResultBackendURL string `yaml:"resultBackendURL"`
-	DefaultQueue     string `yaml:"defaultQueue"`
+type RedisConfig struct {
+	Host string `yaml:"host"`
+	Port string `yaml:"port"`
+}
+
+func (rc RedisConfig) String() string {
+	if rc.Host == "" && rc.Port == "" {
+		return ""
+	}
+
+	return rc.Host + ":" + rc.Port
 }
 
 func Parse(appConfig string) (*Config, error) {
